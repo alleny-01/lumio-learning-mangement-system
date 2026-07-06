@@ -1,13 +1,14 @@
 import { Outlet } from "react-router-dom";
-import Footer from "@/shared/layout/components/Footer";
-import { footerLinkGroups, socialLinks } from "@/landing/constants/constants";
+import { useState } from "react";
+import Footer from "@/components/layout/Footer";
+// import { footerLinkGroups, socialLinks } from "@/landing/constants/constants";
 
 function AppLayout() {
   return (
-    <>
+    <main>
       <Outlet />
-      <Footer linkGroups={footerLinkGroups} socialLinks={socialLinks} />
-    </>
+      {/* <Footer linkGroups={footerLinkGroups} socialLinks={socialLinks} /> */}
+    </main>
   );
 }
 

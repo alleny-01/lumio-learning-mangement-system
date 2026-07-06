@@ -4,6 +4,52 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      animation: {
+        "float-subtle": "floatSubtle 6s ease-in-out infinite",
+        "float-delayed-1": "floatSubtle 7s ease-in-out 1s infinite",
+        "float-delayed-2": "floatSubtle 8s ease-in-out 2s infinite",
+        "float-delayed-3": "floatSubtle 9s ease-in-out 3s infinite",
+        "pulse-glow": "pulseGlow 3s ease-in-out infinite",
+        "particle-float": "particleFloat 4s ease-in-out infinite",
+      },
+      keyframes: {
+        floatSubtle: {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+            opacity: "0.8",
+          },
+          "50%": {
+            transform: "translateY(-12px)",
+            opacity: "1",
+          },
+        },
+        pulseGlow: {
+          "0%, 100%": {
+            boxShadow:
+              "0 0 20px rgba(168, 85, 247, 0.3), 0 0 40px rgba(59, 130, 246, 0.2)",
+          },
+          "50%": {
+            boxShadow:
+              "0 0 30px rgba(168, 85, 247, 0.5), 0 0 60px rgba(59, 130, 246, 0.3)",
+          },
+        },
+        particleFloat: {
+          "0%": {
+            transform: "translateY(0) translateX(0)",
+            opacity: "0",
+          },
+          "10%": {
+            opacity: "0.8",
+          },
+          "90%": {
+            opacity: "0.8",
+          },
+          "100%": {
+            transform: "translateY(-20px) translateX(10px)",
+            opacity: "0",
+          },
+        },
+      },
       colors: {
         "tertiary-fixed": "#b2f746",
         "surface-container-high": "#e2e7ff",
@@ -59,10 +105,13 @@ export default {
         xl: "0.75rem",
         full: "9999px",
       },
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+      },
       fontFamily: {
-        headline: ["Manrope"],
-        body: ["Inter"],
-        label: ["Inter"],
+        headline: ["Quicksand"],
+        body: ["Quicksand"],
+        label: ["Quicksand"],
       },
     },
   },

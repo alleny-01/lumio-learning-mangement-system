@@ -1,14 +1,44 @@
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Link } from "react-router-dom";
-import { useState } from "react"; 
+import { useContext, useState } from "react";
 import Input from "../ui/Input";
 import AuthenticationLayout from "../components/AuthenticationLayout";
 import AuthenticationHeader from "../components/AuthenticationHeader";
 import AuthenticationForm from "../components/AuthenticationForm";
+import { LMSContext } from "@/contexts/LMSContext";
+import { requestPasswordReset } from "@/shared/api/auth";
+import { Spinner } from "@/components/ui/Spinner";
 
 const ForgotPassword = () : React.JSX.Element => {
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState<string>("");
+  const [isSent, setIsSent] = useState(false);
+  const auth = useContext(LMSContext);
+  const isLoading = auth?.isLoading ?? false;
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!forgotPasswordEmail || isLoading) return;
+
+    setIsSent(false);
+    auth?.setIsLoading(true);
+    try {
+      const { error } = await requestPasswordReset(forgotPasswordEmail);
+      if (error) {
+        auth?.setAuthError(error.message);
+        return;
+      }
+      setIsSent(true);
+    } catch (error) {
+      auth?.setAuthError(
+        error instanceof Error
+          ? error.message
+          : "Unable to send a password reset link.",
+      );
+    } finally {
+      auth?.setIsLoading(false);
+    }
+  };
 
   return (
     <AuthenticationLayout>
@@ -24,7 +54,7 @@ const ForgotPassword = () : React.JSX.Element => {
           />
         </div>
 
-        <div className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <Input id="email" label="Email Address"
             type="email"
             placeholder="name@company.com"
@@ -35,17 +65,28 @@ const ForgotPassword = () : React.JSX.Element => {
 
           <div className="rounded-lg border bg-muted/40 p-3">
             <p className="text-[11px] leading-relaxed text-muted-foreground">
-              We'll send a password reset link to your inbox. If you don't see
+              We&apos;ll send a password reset link to your inbox. If you don&apos;t see
               it, check your spam or junk folder.
             </p>
           </div>
-        </div>
 
-        <div className="mt-6">
-          <Button variant="outline" size="sm" className="w-full py-5">
-            Send Reset Link
+          {isSent && (
+            <p className="text-xs text-emerald-600">
+              Reset link sent. Check your inbox to continue.
+            </p>
+          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full py-5 flex justify-center items-center gap-3"
+            type="submit"
+            disabled={!forgotPasswordEmail || isLoading}
+          >
+            {isLoading && <Spinner />}
+            {isLoading ? "Sending..." : "Send Reset Link"}
           </Button>
-        </div>
+        </form>
 
         <div className="mt-8 text-center">
           <p className="text-xs text-muted-foreground">
@@ -53,7 +94,7 @@ const ForgotPassword = () : React.JSX.Element => {
           </p>
 
           <Link
-            to="/"
+            to="/signin"
             className="inline-flex items-center gap-1 text-xs font-medium mt-2 hover:underline mt-5"
           >
             &larr; Back to Sign In

@@ -1,16 +1,16 @@
-import type { InputHTMLAttributes } from "react";
+import type { ChangeEvent, InputHTMLAttributes, ReactNode } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  icon?: string | React.ReactNode;
+  icon?: string | ReactNode;
   id: string;
   error?: string;
   forgotPasswordLink?: boolean;
   value?: string;
-  onChange?: (e: any) => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   showPasswordToggle?: boolean;
 }
 
@@ -79,7 +79,7 @@ function Input({
 
         {forgotPasswordLink && (
           <Link
-            to="/forgotpassword"
+            to="/forgot-password"
             className="font-normal hover:underline underline-offset-4 decoration-2 decoration-primary/30 transition-all text-xs flex justify-end pt-4"
           >
             Forgot password?

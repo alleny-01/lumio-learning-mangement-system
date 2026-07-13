@@ -1,9 +1,7 @@
 import {
   compactCourses,
   featuredCourse,
-  footerLinkGroups,
   navLinks,
-  socialLinks,
 } from "../constants/constants";
 import CourseGrid from "../components/CourseGrid";
 import FeatureHighlights from "../components/FeatureHighlights";

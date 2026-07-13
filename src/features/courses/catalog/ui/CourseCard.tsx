@@ -13,10 +13,10 @@ const badgeColorMap = {
 export function CourseCard({ course }: CourseCardProps) {
   return (
     <div className="group cursor-pointer px-2">
-      <div className="relative aspect-[4/3] mb-4 overflow-hidden rounded-lg bg-surface-container">
+      <div className="relative aspect-[4/3] mb-4 overflow-hidden rounded-sm bg-surface-container">
         <img
           alt={course.imageAlt}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-110"
           src={course.imageUrl}
         />
         {course.badge && (
@@ -30,7 +30,7 @@ export function CourseCard({ course }: CourseCardProps) {
         )}
       </div>
       <div className="space-y-1">
-        <div className="flex items-center gap-1 text-primary-container text-xs font-semibold">
+        <div className="flex items-center gap-1 text-tertiary-fixed-dim text-xs font-semibold">
           <span
             className="material-symbols-outlined text-[14px]"
             style={{ fontVariationSettings: "'FILL' 1" }}
@@ -42,10 +42,12 @@ export function CourseCard({ course }: CourseCardProps) {
             ({course.reviews})
           </span>
         </div>
-        <h3 className="text-sm font-extralight group-hover:text-primary transition-colors leading-snug">
+        <h3 className="text-md text-on-surface font-normal upper group-hover:text-primary transition-colors leading-snug">
           {course.title}
         </h3>
-        <p className="text-muted-foreground text-xs font-medium">
+
+        <p className="font-light text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Aspernatur unde nemo libero quisquam sunt autem nesciunt eveniet repudiandae magni eaque laboriosam, vitae hic minima nis</p>
+        <p className="text-[13px] text-muted-foreground mt-3 font-medium">
           {course.instructor}
         </p>
         <div className="pt-2 flex items-center justify-end">

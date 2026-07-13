@@ -8,19 +8,64 @@ import LMSProvider from "@/contexts/LMSContext";
 import CourseCatalog from "@/features/courses/catalog/pages/CourseCatalog";
 import CourseDetailPage from "@/features/courses/detail/pages/CourseDetail";
 import EmailConfirmation from "./features/authentication/pages/EmailConfirmation";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
+import ProtectedRoute, { PublicOnlyRoute } from "./components/auth/ProtectedRoute";
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
+import ViewerPage from "./features/viewer/pages/ViewerPage";
+import SettingsPage from "./features/settings/pages/SettingsPage";
+import LandingPage from "./landing/pages/LandingPage";
+import ResetPassword from "./features/authentication/pages/ResetPassword";
 
 function App() {
   return (
     <LMSProvider>
       <Routes>
         <Route path="/" element={<AppLayout />}>
-          <Route index element={<SigninPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route index element={<LandingPage />} />
           <Route
-            path="/courses"
+            path="signin"
+            element={
+              <PublicOnlyRoute>
+                <SigninPage />
+              </PublicOnlyRoute>
+            }
+          />
+          <Route
+            path="signup"
+            element={
+              <PublicOnlyRoute>
+                <SignupPage />
+              </PublicOnlyRoute>
+            }
+          />
+          <Route
+            path="forgot-password"
+            element={
+              <PublicOnlyRoute>
+                <ForgotPassword />
+              </PublicOnlyRoute>
+            }
+          />
+          <Route
+            path="forgotpassword"
+            element={
+              <PublicOnlyRoute>
+                <ForgotPassword />
+              </PublicOnlyRoute>
+            }
+          />
+          <Route path="reset-password" element={<ResetPassword />} />
+          <Route path="email-confirmation" element={<EmailConfirmation />} />
+          <Route path="auth/callback" element={<AuthCallback />} />
+          <Route
+            path="dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="courses"
             element={
               <ProtectedRoute>
                 <CourseCatalog />
@@ -28,19 +73,30 @@ function App() {
             }
           />
           <Route
-            path="/courses/:courseId"
+            path="courses/:courseId"
             element={
               <ProtectedRoute>
                 <CourseDetailPage />
               </ProtectedRoute>
             }
           />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/email-confirmation" element={<EmailConfirmation />} />
+          <Route
+            path="viewer"
+            element={
+              <ProtectedRoute>
+                <ViewerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
-
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
       </Routes>
     </LMSProvider>
   );

@@ -1,11 +1,10 @@
 import { DashboardHero } from "./DashboardHero";
-import { TopBar } from "./TopBar";
 import { StatsGrid } from "./StatsGrid";
 import { CoursesSection } from "./CoursesSection";
 import { ScheduleSection } from "./ScheduleSection";
 import { RightPanel } from "./RightPanel";
 import { dashboardStats, dashboardCourses } from "../constants";
-import Sidebar from "@/components/layout/Sidebar"
+import Sidebar from "@/components/layout/Sidebar";
 
 export function DashboardShell(): React.JSX.Element {
   return (

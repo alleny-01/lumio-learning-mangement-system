@@ -1,6 +1,6 @@
 import type { CourseDetail } from "../types/types";
+import { Calendar1, Clock9, Star  } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { PiTimerThin } from "react-icons/pi";
 import { Link } from "react-router-dom";
 
 interface CourseHeroProps {
@@ -45,14 +45,14 @@ export const CourseHero: React.FC<CourseHeroProps> = ({ course }) => {
 
             <div className="flex flex-wrap gap-4 mb-6">
               {[
-                { icon: "star", label: `${course.rating} rating` },
+                { icon: <Star size={18} strokeWidth={1} />, label: `${course.rating} rating` },
                 {
-                  icon: <PiTimerThin size={20} />,
+                  icon: <Clock9 size={18} strokeWidth={1}/>,
                   label: course.duration,
                   noOfLectures: 20,
                 },
                 {
-                  icon: "calendar_month",
+                  icon: <Calendar1 size={18} strokeWidth={1}/>,
                   label: `Updated ${course.lastUpdated}`,
                 },
                 { icon: " ", label: `567 lectures` },
@@ -83,13 +83,13 @@ export const CourseHero: React.FC<CourseHeroProps> = ({ course }) => {
                 size="lg"
                 className="inline-flex items-center text-[13px] text-foreground border border-border rounded-lg px-5 py-2.5 hover:bg-muted transition-colors"
               >
-                Preview syllabus
-              </Button>
+                    Preview syllabus
+                    </Button>
             </div>
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <div className="flex">
-                {["AK", "JR", "ML"].map((initials, i) => (
+                {["AK", "JR", "ML"].map((initials) => (
                   <div
                     key={initials}
                     className="w-6 h-6 rounded-full border-2 border-background bg-muted text-[9px] font-medium flex items-center justify-center -ml-1.5 first:ml-0"

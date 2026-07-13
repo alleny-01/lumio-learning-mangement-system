@@ -1,7 +1,8 @@
 import React, { useState, useContext } from "react";
+import { NavLink } from "react-router-dom";
 import { Spinner } from "@/components/ui/Spinner";
 import { useNavigate } from "react-router-dom";
-import { mainNavItems } from "../../shared/constants/constants";
+import { mainNavItems } from "@/shared/constants/constants";
 import { LogOut, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase/client";
@@ -34,6 +35,7 @@ function Sidebar(): React.JSX.Element {
 
   return (
     <aside
+      onClick={() => setIsCollapsed(!isCollapsed)}
       className={`fixed z-999 bg-surface-container-lowest left-0 top-0 h-screen md:flex flex-col transition-all duration-200 ease-in-out  ${
         isCollapsed ? "w-[50px]" : "w-[280px]"
       }`}
@@ -78,15 +80,14 @@ function Sidebar(): React.JSX.Element {
         {mainNavItems.map((item) => {
           const isActive = activeRoute === item.id;
           return (
-            <a
+            <NavLink
               key={item.id}
-              onClick={(e) => {
-                e.preventDefault();
+              onClick={() => {
                 setActiveRoute(item.id);
               }}
-              href={item.href}
+              to={`/${item.to}`}
               title={isCollapsed ? item.label : undefined}
-              className={`relative flex items-center gap-2 mx-1 py-[6px] transition-all px-2 duration-200 ease-out group rounded-sm ${
+              className={({isActive}) => `relative flex items-center gap-2 mx-1 py-[6px] transition-all px-2 duration-200 ease-out group rounded-sm ${
                 isActive
                   ? "bg-surface-container text-black"
                   : " hover:text-on-surface hover:bg-surface-container hover:scale-100"
@@ -107,7 +108,7 @@ function Sidebar(): React.JSX.Element {
                   {item.label}
                 </span>
               )}
-            </a>
+            </NavLink>
           );
         })}
       </nav>
@@ -147,11 +148,11 @@ function Sidebar(): React.JSX.Element {
                     />
 
                     {/* Online indicator */}
-                    <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-surface bg-emerald-500 animate-pulse" />
+                    <span className="absolute bottom-0right-0 h-3 w-3 rounded-full border-2 border-surface bg-emerald-500 animate-pulse" />
                   </div>
 
                   <div className="min-w-0">
-                    <h3 className="truncate text-[13px] font-medium text-on-surface">
+                    <h3 className="truncate text-left text-[13px] font-medium text-on-surface">
                       Allen Enuma
                     </h3>
 
@@ -161,7 +162,7 @@ function Sidebar(): React.JSX.Element {
 
                     <div className="mt-1 flex items-center gap-2">
                       <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                        Student
+                        Scholar
                       </span>
 
                       <span className="flex items-center gap-1 text-[10px] text-emerald-600">

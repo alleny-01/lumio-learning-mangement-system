@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { LMSContext } from "@/contexts/LMSContext";
-import { supabase } from "@/lib/supabase/client";
+import { signInWithGoogle, signInWithPassword } from "@/shared/api/auth";
 import Input from "@/features/authentication/ui/Input";
 import SocialButton from "@/features/authentication/ui/SocialButton";
 import AuthenticationLayout from "../components/AuthenticationLayout";
@@ -13,8 +13,9 @@ import AuthenticationHeader from "../components/AuthenticationHeader";
 
 function SigninPage(): React.JSX.Element {
   const navigate = useNavigate();
-  const { isLoading, setIsLoading, session, setSession, setAuthError } =
-    useContext(LMSContext);
+  const auth = useContext(LMSContext);
+  const isLoading = auth?.isLoading ?? false;
+  const session = auth?.session;
   const [signInEmail, setSignInEmail] = useState<string>("");
   const [signInPassword, setSignInPassword] = useState<string>("");
 
@@ -38,16 +39,12 @@ function SigninPage(): React.JSX.Element {
       return { success: false, error: "validation" };
     }
 
-    setIsLoading(true);
+    auth?.setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.toLowerCase(),
-        password: password,
-      });
+      const { data, error } = await signInWithPassword(email, password);
 
       if (error) {
-        console.error("Error signing in:", error);
-        setAuthError(error.message);
+        auth?.setAuthError(error.message);
         return { success: false, error };
       }
 
@@ -59,35 +56,27 @@ function SigninPage(): React.JSX.Element {
         return { success: false, error: "unverified" };
       }
 
-      setSession(data.session ?? null);
-
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 5000);
+      auth?.setSession(data.session ?? null);
+      navigate("/dashboard", { replace: true });
 
       return { success: true, data };
-    } catch (err: any) {
-      console.error("an error occured:", err);
-      setAuthError(
-        err.message || "An unexpected error occurred during sign-in.",
+    } catch (err) {
+      auth?.setAuthError(
+        err instanceof Error
+          ? err.message
+          : "An unexpected error occurred during sign-in.",
       );
       return { success: false, error: err };
     } finally {
-      setIsLoading(false);
+      auth?.setIsLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    const { error } = await signInWithGoogle();
 
     if (error) {
-      console.error("Google sign in failed:", error.message);
-      setAuthError(error.message);
+      auth?.setAuthError(error.message);
       throw error;
     }
   };
@@ -97,15 +86,15 @@ function SigninPage(): React.JSX.Element {
       <AuthenticationForm>
         {/* Hero Section */}
         <div className="relative mb-8">
-          <div className="flex justify-center">
+          {/* <div className="flex justify-center">
             <div className="inline-flex items-center gap-3 rounded-full text-black px-4 py-2 backdrop-blur-sm ">
               <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
               <span className="text-sm uppercase text-muted-foreground font-normal tracking-wider">
                 Sign in to lumio
               </span>
             </div>
-          </div>
-          <div className="mt-6">
+          </div> */}
+          <div className="mt-4">
             <AuthenticationHeader
             title="Welcome back to Lumio 👋"
             subtitle="Enter your details to sign in to your account and continue your learning journey ."
@@ -203,7 +192,7 @@ function SigninPage(): React.JSX.Element {
           <p className="text-xs text-muted-foreground">
             Need help?{" "}
             <a
-              href="/support"
+              href="mailto:support@lumio.com"
               className="hover:underline underline-offset-4 transition-all"
             >
               Contact Support

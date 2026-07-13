@@ -1,12 +1,10 @@
-import { CiFilter } from "react-icons/ci";
-import { IoFilterOutline } from "react-icons/io5";
-import { categories, sortOptions } from "../constants";
+import Particle from "@/components/ui/p-select-3"
 
 function FilterBar() {
   return (
     <div className="flex items-center justify-between sm:flex-row flex-col gap-3 p-1.5 rounded-xl mb-7">
       <div className="relative">
-        <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface/60">
+        {/* <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface/60">
           <CiFilter size={18} />
         </div>
         <select className="appearance-none bg-surface-container-lowest text-on-surface shadow-sm text-[13px] px-9 py-2.5  rounded-md cursor-pointer focus:outline-none transition-all focus:border-none">
@@ -15,11 +13,12 @@ function FilterBar() {
               {category}
             </option>
           ))}
-        </select>
+        </select> */}
+        <Particle />
       </div>
 
       <div className="relative">
-        <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface/60">
+        {/* <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface/60">
           <IoFilterOutline size={18} />
         </div>
         <select className="appearance-none bg-surface-container-lowest text-on-surface shadow-sm text-[13px] px-9 py-2.5 rounded-md cursor-pointer focus:outline-none focus:border-none">
@@ -30,7 +29,8 @@ function FilterBar() {
               </option>
             ))
           }
-        </select>
+        </select> */}
+        <Particle />
       </div>
     </div>
   );

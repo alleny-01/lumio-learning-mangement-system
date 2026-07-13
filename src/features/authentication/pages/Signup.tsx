@@ -4,7 +4,7 @@ import { Check, X, TriangleAlert } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { Spinner } from "@/components/ui/Spinner";
 import { LMSContext } from "@/contexts/LMSContext";
-import { supabase } from "@/lib/supabase/client";
+import { signInWithGoogle, signUpWithPassword } from "@/shared/api/auth";
 import { Button } from "../../../components/ui/Button";
 import Input from "@/features/authentication/ui/Input";
 import SocialButton from "@/features/authentication/ui/SocialButton";
@@ -12,7 +12,7 @@ import AuthenticationForm from "../components/AuthenticationForm";
 import AuthenticationHeader from "../components/AuthenticationHeader";
 import AuthenticationLayout from "../components/AuthenticationLayout";
 
-function SignupPage() : React.JSX.Element {
+function SignupPage(): React.JSX.Element {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [signUpEmail, setSignUpEmail] = useState<string>("");
@@ -25,7 +25,9 @@ function SignupPage() : React.JSX.Element {
   const isPasswordValid =
     atleastSixChars && hasUppercase && hasSpecialChar && passwordMatch;
   const [isHovered, setIsHovered] = useState(false);
-  const { isLoading, setIsLoading, session } = useContext(LMSContext);
+  const auth = useContext(LMSContext);
+  const isLoading = auth?.isLoading ?? false;
+  const session = auth?.session;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,44 +50,37 @@ function SignupPage() : React.JSX.Element {
       return { success: false, error: "validation" };
     }
 
-    setIsLoading(true);
+    auth?.setIsLoading(true);
     try {
       // persist the email locally so the confirmation page can show it
       persistSignUpEmail(email.toLowerCase());
-      const { data, error } = await supabase.auth.signUp({
-        email: email.toLowerCase(),
-        password: password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/email-confirmation`,
-        },
-      });
+      const { data, error } = await signUpWithPassword(email, password);
 
       if (error) {
-        console.error("Error signing up:", error);
+        auth?.setAuthError(error.message);
         return { success: false, error };
       }
 
       // navigate to confirmation page (email shown from localStorage or context)
       navigate("/email-confirmation");
       return { success: true, data };
-    } catch (err: any) {
-      console.error("An error occurred during sign up:", err);
+    } catch (err) {
+      auth?.setAuthError(
+        err instanceof Error
+          ? err.message
+          : "An unexpected error occurred during sign-up.",
+      );
       return { success: false, error: err };
     } finally {
-      setIsLoading(false);
+      auth?.setIsLoading(false);
     }
   };
 
   const handleGoogleSignUp = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    const { error } = await signInWithGoogle();
 
     if (error) {
-      console.error("Google sign in failed:", error.message);
+      auth?.setAuthError(error.message);
       throw error;
     }
   };
@@ -127,18 +122,18 @@ function SignupPage() : React.JSX.Element {
 
       <AuthenticationLayout>
         <AuthenticationForm>
-          <div className="mb-1 flex justify-center">
+          {/* <div className="mb-1 flex justify-center">
             <div className="inline-flex items-center gap-3 rounded-full text-black px-4 py-2 backdrop-blur-sm ">
               <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
               <span className="text-sm uppercase text-muted-foreground font-normal tracking-wider">
-                Sign up
+                Sign up to lumio
               </span>
             </div>
-          </div>
+          </div> */}
 
           <AuthenticationHeader
             title="Create your account"
-            subtitle="Enter the Digital Atelier and start your mastery."
+            subtitle="Enter the digital atelier to start your mastery."
           />
 
           <div className="mt-6 rounded-md w-full border border-border/50 bg-card/40 backdrop-blur-sm shadow-xl shadow-primary/5 p-5">
@@ -442,7 +437,7 @@ function SignupPage() : React.JSX.Element {
             <p className="font-body text-on-surface-variant">
               Already an initiate?{" "}
               <Link
-                to="/"
+                to="/signin"
                 className="font-medium text-primary hover:underline underline-offset-4 transition-all"
               >
                 Sign In

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase/client";
 import { LMSContext } from "@/contexts/LMSContext";
 import { Spinner } from "@/components/ui/Spinner";
+import { exchangeAuthCodeForSession } from "@/shared/api/auth";
 
 type Status = "waiting" | "confirming" | "success" | "error";
 
@@ -23,15 +24,18 @@ function EmailConfirmation(): React.JSX.Element {
   const { resendVerification } = useContext(LMSContext);
 
   useEffect(() => {
+    setSignUpEmail(localStorage.getItem("lumio_sign_up_email") ?? "");
+  }, []);
+
+  useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("code");
 
     if (code) {
       // User just clicked the email link and landed here with a code
       setStatus("confirming");
 
-      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+      exchangeAuthCodeForSession(code).then(({ error }) => {
         if (error) {
-          console.error("Confirmation error:", error);
           setStatus("error");
         } else {
           setStatus("success");
@@ -81,11 +85,9 @@ function EmailConfirmation(): React.JSX.Element {
         setCooldown(RESEND_COOLDOWN_SECONDS);
         setTimeout(() => setResendState("idle"), 2500);
       } else {
-        console.error("Resend error:", res?.error);
         setResendState("idle");
       }
     } catch (err) {
-      console.error("Resend error:", err);
       setResendState("idle");
     }
   };

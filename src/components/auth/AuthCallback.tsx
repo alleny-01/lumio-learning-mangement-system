@@ -1,23 +1,26 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase/client";
+import { exchangeAuthCodeForSession } from "@/shared/api/auth";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
     const finishSignIn = async () => {
-      const { error } = await supabase.auth.exchangeCodeForSession(
-        window.location.href,
-      );
-
-      if (error) {
-        console.error(error);
-        navigate("/", { replace: true });
+      const code = new URLSearchParams(window.location.search).get("code");
+      if (!code) {
+        navigate("/signin", { replace: true });
         return;
       }
 
-      navigate("/courses", { replace: true });
+      const { error } = await exchangeAuthCodeForSession(code);
+
+      if (error) {
+        navigate("/signin", { replace: true });
+        return;
+      }
+
+      navigate("/dashboard", { replace: true });
     };
 
     finishSignIn();

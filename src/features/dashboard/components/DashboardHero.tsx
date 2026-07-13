@@ -1,6 +1,3 @@
-import { LMSContext } from "@/contexts/LMSContext";
-import { useContext } from "react";
-
 export function DashboardHero(): React.JSX.Element {
   return (
     <section className="relative overflow-hidden rounded-sm bg-on-surface px-5 py-6 text-white shadow-[0_16px_40px_-20px_rgba(68,56,190,0.7)] sm:px-6 sm:py-5">

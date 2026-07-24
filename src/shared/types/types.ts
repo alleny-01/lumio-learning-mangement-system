@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
+
 export interface NavItem {
   id: string;
   label: string;
-  icon: any;
+  icon: ReactNode;
   to: string;
-};
+}

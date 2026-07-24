@@ -1,5 +1,4 @@
 import CatalogNavbar from "../components/CatalogNavbar";
-import Sidebar from "@/components/layout/Sidebar";
 import FilterBar from "../components/FilterBar";
 import { CourseGrid } from "../components/CourseGrid";
 import { CatalogHeader } from "../components/CatalogHeader";
@@ -8,8 +7,7 @@ import { CatalogHeader } from "../components/CatalogHeader";
 export default function CourseCatalogPage() {
   return (
     <div className="text-on-background antialiased ">
-      <Sidebar />
-      <main className="pt-20 pb-2 pl-17 pr-4 mx-auto">
+      <main className="mx-auto px-4 pb-8 pt-4 sm:px-6 lg:px-6">
         <CatalogNavbar />
         <CatalogHeader 
         />

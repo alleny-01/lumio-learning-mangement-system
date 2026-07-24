@@ -1,244 +1,242 @@
-import React, { useState, useContext } from "react";
-import { NavLink } from "react-router-dom";
-import { Spinner } from "@/components/ui/Spinner";
-import { useNavigate } from "react-router-dom";
-import { mainNavItems } from "@/shared/constants/constants";
-import { LogOut, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase/client";
-import { LMSContext } from "@/contexts/LMSContext";
+import { useContext, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import {
+  ChevronsLeft,
+  ChevronsRight,
+  LogOut,
+  PanelLeftClose,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
+import { LMSContext } from "@/contexts/LMSContext";
+import { signOut as signOutRequest } from "@/shared/api/auth";
+import { mainNavItems } from "@/shared/constants/constants";
+import { cn } from "@/lib/utils";
 
-function Sidebar(): React.JSX.Element {
-  const [isCollapsed, setIsCollapsed] = useState(true);
-  const [activeRoute, setActiveRoute] = useState("dashboard");
-  const { setSession, isLoading, setIsLoading } = useContext(LMSContext);
+interface SidebarProps {
+  isCollapsed: boolean;
+  isMobileOpen: boolean;
+  onToggleCollapsed: () => void;
+  onCloseMobile: () => void;
+}
+
+function Sidebar({
+  isCollapsed,
+  isMobileOpen,
+  onToggleCollapsed,
+  onCloseMobile,
+}: SidebarProps): React.JSX.Element {
+  const { setSession, isLoading, setIsLoading, setAuthError } =
+    useContext(LMSContext);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const signOut = async () => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signOut();
+      const { error } = await signOutRequest();
       if (error) {
-        console.error("Error signing out:", error);
+        setAuthError(error.message);
+        return;
       }
       setSession(null);
-      navigate("/");
-    } catch (err) {
-      console.error("An error occurred during sign out:", err);
+      navigate("/signin", { replace: true });
+    } catch (error) {
+      setAuthError(
+        error instanceof Error ? error.message : "Unable to sign out.",
+      );
     } finally {
       setIsLoading(false);
       setIsLogoutModalOpen(false);
+      onCloseMobile();
     }
   };
 
   return (
-    <aside
-      onClick={() => setIsCollapsed(!isCollapsed)}
-      className={`fixed z-999 bg-surface-container-lowest left-0 top-0 h-screen md:flex flex-col transition-all duration-200 ease-in-out  ${
-        isCollapsed ? "w-[50px]" : "w-[280px]"
-      }`}
-    >
+    <>
       <div
-        className={`flex items-center h-10 border-b border-border/50 px-2  flex-shrink-0 ${
-          isCollapsed ? "justify-center" : "justify-between"
-        }`}
-      >
-        {!isCollapsed && (
-          <div className="flex items-center gap-2 min-w-0 overflow-hidden">
-            {/* <div className="w-5 h-5 rounded-[4px] bg-primary text-on-primary flex items-center justify-center font-semibold text-[10px] flex-shrink-0">
-              A
-            </div> */}
-            <span className="text-[13px] font-normal text-on-surface tracking-wide truncate">
-              LUMIO
-            </span>
-          </div>
+        className={cn(
+          "fixed inset-0 z-40 bg-black/35 backdrop-blur-sm transition-opacity duration-200 md:hidden",
+          isMobileOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0",
         )}
+        aria-hidden="true"
+        onClick={onCloseMobile}
+      />
 
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="w-5 h-5 flex items-center justify-center rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors flex-shrink-0"
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <path d="M16.5 4A1.5 1.5 0 0 1 18 5.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 2 14.5v-9A1.5 1.5 0 0 1 3.5 4zM7 15h9.5a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5H7zM3.5 5a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5H6V5z"></path>
-          </svg>
-        </button>
-      </div>
-
-      <nav
-        className={`flex flex-col gap-2 py-1 flex-grow overflow-y-auto ${!isCollapsed && "px-2"}  overflow-x-hidden mt-3`}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-[var(--sidebar-width)] flex-col border-r border-outline-variant/30 bg-surface-container-lowest shadow-[8px_0_30px_-28px_rgba(15,23,42,0.45)] transition-[width,transform] duration-300 ease-out",
+          isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+        )}
+        aria-label="Primary navigation"
       >
-        {mainNavItems.map((item) => {
-          const isActive = activeRoute === item.id;
-          return (
-            <NavLink
-              key={item.id}
-              onClick={() => {
-                setActiveRoute(item.id);
-              }}
-              to={`/${item.to}`}
-              title={isCollapsed ? item.label : undefined}
-              className={({isActive}) => `relative flex items-center gap-2 mx-1 py-[6px] transition-all px-2 duration-200 ease-out group rounded-sm ${
-                isActive
-                  ? "bg-surface-container text-black"
-                  : " hover:text-on-surface hover:bg-surface-container hover:scale-100"
-              } ${isCollapsed ? "justify-center" : ""}`}
-            >
-              {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-primary to-primary rounded-r-full opacity-0 animate-in fade-in slide-in-from-left-2 duration-300" />
-              )}
-              <span
-                className={`material-symbols-outlined flex-shrink-0 text-[18px] transition-all duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`}
-              >
-                {item.icon}
-              </span>
-              {!isCollapsed && (
-                <span
-                  className={`text-[12px] font-extralight transition-all duration-200 text-black font-normal tracking-normal whitespace-nowrap`}
-                >
-                  {item.label}
-                </span>
-              )}
-            </NavLink>
-          );
-        })}
-      </nav>
-
-      <div
-        className={`flex flex-col border-t border-border/50 py-1  ${!isCollapsed && "px-2"}`}
-      >
-        <div className="flex items-center gap-3">
-          <button
+        <div className="flex h-14 items-center justify-between border-b border-outline-variant/30 px-3">
+          <div
             className={cn(
-              "group w-full transition-all duration-300",
-              isCollapsed
-                ? "flex justify-center p-2"
-                : "rounded-2xl p-2 hover:bg-surface-container-low",
+              "min-w-0 items-center gap-2",
+              isCollapsed ? "hidden md:hidden" : "flex",
             )}
           >
-            {/* Collapsed */}
-            {isCollapsed ? (
-              <div className="relative">
-                <img
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80"
-                  alt="Allen Enuma"
-                  className="h-8 w-8 rounded-full object-cover ring-2 ring-primary/15 transition-transform duration-300 group-hover:scale-105"
-                />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-primary text-[11px] font-medium text-on-primary">
+              L
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-[13px] font-medium tracking-wide text-on-surface">
+                Lumio
+              </p>
+              <p className="truncate text-[10px] font-light text-on-surface-variant">
+                Learning dashboard
+              </p>
+            </div>
+          </div>
 
-                {/* Online indicator */}
-                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-surface bg-emerald-500 animate-pulse" />
-              </div>
-            ) : (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="relative shrink-0">
-                    <img
-                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80"
-                      alt="Allen Enuma"
-                      className="h-11 w-11 rounded-full object-cover ring-2 ring-primary/15"
-                    />
+          {isCollapsed && (
+            <div className="hidden h-8 w-8 items-center justify-center rounded-sm bg-primary text-[11px] font-medium text-on-primary md:flex">
+              L
+            </div>
+          )}
 
-                    {/* Online indicator */}
-                    <span className="absolute bottom-0right-0 h-3 w-3 rounded-full border-2 border-surface bg-emerald-500 animate-pulse" />
-                  </div>
-
-                  <div className="min-w-0">
-                    <h3 className="truncate text-left text-[13px] font-medium text-on-surface">
-                      Allen Enuma
-                    </h3>
-
-                    <p className="truncate text-[11px] text-on-surface-variant">
-                      allenenuma@gmail.com
-                    </p>
-
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                        Scholar
-                      </span>
-
-                      <span className="flex items-center gap-1 text-[10px] text-emerald-600">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                        Online
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <ChevronsUpDown
-                  size={16}
-                  className="text-on-surface-variant opacity-60 transition group-hover:opacity-100"
-                />
-              </div>
-            )}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              className="hidden size-8 items-center justify-center rounded-sm text-outline transition-colors hover:bg-surface-container hover:text-on-surface md:inline-flex"
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              onClick={onToggleCollapsed}
+            >
+              {isCollapsed ? (
+                <ChevronsRight size={16} strokeWidth={1.4} />
+              ) : (
+                <ChevronsLeft size={16} strokeWidth={1.4} />
+              )}
+            </button>
+            <button
+              type="button"
+              className="inline-flex size-8 items-center justify-center rounded-sm text-outline transition-colors hover:bg-surface-container hover:text-on-surface md:hidden"
+              aria-label="Close navigation"
+              onClick={onCloseMobile}
+            >
+              <X size={17} strokeWidth={1.4} />
+            </button>
+          </div>
         </div>
 
-        <button
-          onClick={() => setIsLogoutModalOpen(true)}
-          className={`flex items-center gap-2 mx-1 px-2 py-[6px] transition-all duration-200 ease-out group rounded-sm hover:bg-surface-container ${
-            isCollapsed ? "justify-center" : ""
-          }
-              `}
-        >
-          <span
-            className={`material-symbols-outlined flex-shrink-0 text-[18px] transition-all duration-200 active:scale-110 group-hover:scale-105`}
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden px-2 py-4">
+          {mainNavItems.map((item) => (
+            <NavLink
+              key={item.id}
+              to={item.to}
+              title={isCollapsed ? item.label : undefined}
+              onClick={onCloseMobile}
+              className={({ isActive }) =>
+                cn(
+                  "group relative flex h-10 items-center gap-3 rounded-sm px-3 text-[12px] font-light tracking-wide text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface",
+                  isActive && "bg-surface-container text-on-surface",
+                  isCollapsed && "justify-center px-0",
+                )
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={cn(
+                      "absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-primary opacity-0 transition-opacity",
+                      isActive && "opacity-100",
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "flex shrink-0 text-on-surface-variant transition-colors group-hover:text-on-surface",
+                      isActive && "text-primary",
+                    )}
+                    aria-hidden="true"
+                  >
+                    {item.icon}
+                  </span>
+                  {!isCollapsed && (
+                    <span className="min-w-0 truncate">{item.label}</span>
+                  )}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="border-t border-outline-variant/30 p-2">
+          <div
+            className={cn(
+              "mb-2 flex items-center gap-3 rounded-sm px-2 py-2",
+              isCollapsed && "justify-center px-0",
+            )}
           >
-            <LogOut size={18} strokeWidth={1} />
-          </span>
-          {!isCollapsed && (
-            <span className="text-[12px] font-ligh tracking-[-0.01em] whitespace-nowrap">
-              Log out
-            </span>
-          )}
-        </button>
-      </div>
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-fixed text-[11px] font-medium text-on-primary-fixed">
+              A
+            </div>
+            {!isCollapsed && (
+              <div className="min-w-0">
+                <p className="truncate text-[12px] font-medium text-on-surface">
+                  Allen Enuma
+                </p>
+                <p className="truncate text-[10px] font-light text-on-surface-variant">
+                  allenenuma@gmail.com
+                </p>
+              </div>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsLogoutModalOpen(true)}
+            className={cn(
+              "flex h-10 w-full items-center gap-3 rounded-sm px-3 text-[12px] font-light text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface",
+              isCollapsed && "justify-center px-0",
+            )}
+          >
+            <LogOut size={17} strokeWidth={1.3} />
+            {!isCollapsed && <span>Log out</span>}
+          </button>
+        </div>
+      </aside>
 
       {isLogoutModalOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md mx-4 rounded-sm bg-white shadow-2xl border border-gray-100 p-6 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-center w-14 h-14 mx-auto rounded-sm">
-              <LogOut size={28} strokeWidth={1} />
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-sm border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-2xl">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-sm bg-primary/10 text-primary">
+              <PanelLeftClose size={22} strokeWidth={1.3} />
             </div>
-
             <div className="mt-4 text-center">
-              <h2 className="text-xl text-gray-900">Log Out</h2>
-
-              <p className="mt-2 text-sm">Are you sure you want to log out?</p>
+              <h2 className="text-sm font-medium text-on-surface">Log out</h2>
+              <p className="mt-2 text-xs font-light leading-6 text-on-surface-variant">
+                Your current session will end and you will return to sign in.
+              </p>
             </div>
-
-            <div className="flex gap-3 mt-6">
+            <div className="mt-5 flex gap-3">
               <Button
-                onClick={() => setIsLogoutModalOpen(false)}
-                size="lg"
+                type="button"
                 variant="outline"
-                className="flex-1 px-4 py-2.5 text-sm rounded-lg hover:bg-gray-200 transition-colors"
+                size="lg"
+                className="flex-1"
+                onClick={() => setIsLogoutModalOpen(false)}
               >
                 Cancel
               </Button>
-
               <Button
-                onClick={signOut}
+                type="button"
                 size="lg"
-                variant="default"
-                className="flex-1 px-4 py-2.5 text-sm  text-white bg-primary-container  transition-colors"
+                className="flex-1 gap-2"
+                onClick={signOut}
+                disabled={isLoading}
               >
-                {isLoading ? "Logging you out..." : "Log Out"}
-                {isLoading && <Spinner className="ml-2" />}
+                {isLoading && <Spinner />}
+                {isLoading ? "Logging out..." : "Log out"}
               </Button>
             </div>
           </div>
         </div>
       )}
-    </aside>
+    </>
   );
 }
 

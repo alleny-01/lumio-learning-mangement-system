@@ -14,6 +14,7 @@ import ViewerPage from "./features/viewer/pages/ViewerPage";
 import SettingsPage from "./features/settings/pages/SettingsPage";
 import LandingPage from "./landing/pages/LandingPage";
 import ResetPassword from "./features/authentication/pages/ResetPassword";
+import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
 
 function App() {
   return (
@@ -57,45 +58,18 @@ function App() {
           <Route path="email-confirmation" element={<EmailConfirmation />} />
           <Route path="auth/callback" element={<AuthCallback />} />
           <Route
-            path="dashboard"
             element={
               <ProtectedRoute>
-                <DashboardPage />
+                <AuthenticatedLayout />
               </ProtectedRoute>
             }
-          />
-          <Route
-            path="courses"
-            element={
-              <ProtectedRoute>
-                <CourseCatalog />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="courses/:courseId"
-            element={
-              <ProtectedRoute>
-                <CourseDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="viewer"
-            element={
-              <ProtectedRoute>
-                <ViewerPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="settings"
-            element={
-              <ProtectedRoute>
-                <SettingsPage />
-              </ProtectedRoute>
-            }
-          />
+          >
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="courses" element={<CourseCatalog />} />
+            <Route path="courses/:courseId" element={<CourseDetailPage />} />
+            <Route path="viewer" element={<ViewerPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
         </Route>
       </Routes>
     </LMSProvider>

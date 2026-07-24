@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import LearningStreakCard from "@/features/dashboard/components/LearningStreakCard";
 import { notifications } from "../constants";
+import type { DashboardActivity } from "../types";
 
 const calendarGrid = [
   [29, 30, 1, 2, 3, 4, 5],
@@ -10,10 +11,20 @@ const calendarGrid = [
   [27, 28, 29, 30, 31, 1, 2],
 ];
 
-export function RightPanel() {
+interface RightPanelProps {
+  streakDays: number;
+  activity: DashboardActivity[];
+}
+
+function activityForDay(activity: DashboardActivity[], day: number) {
+  const target = `2026-07-${String(day).padStart(2, "0")}`;
+  return activity.find((item) => item.date === target);
+}
+
+export function RightPanel({ streakDays, activity }: RightPanelProps) {
   return (
     <aside className="space-y-4">
-      <LearningStreakCard />
+      <LearningStreakCard streakDays={streakDays} activity={activity} />
 
       <section className="rounded-2xl border border-border/60 bg-surface-container-lowest p-4 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.35)]">
         <div className="mb-4 flex items-center justify-between">
@@ -44,11 +55,18 @@ export function RightPanel() {
             >
               {row.map((day) => {
                 const isMuted = day < 3 || (rowIndex === 4 && day > 28);
-                const isRange = day >= 13 && day <= 19;
-                const isSelected = day === 15;
+                const dayActivity = activityForDay(activity, day);
+                const isRange = Boolean(dayActivity?.minutes);
+                const isSelected =
+                  day === new Date().getDate() && !isMuted;
                 return (
                   <button
                     key={`${rowIndex}-${day}`}
+                    title={
+                      dayActivity
+                        ? `${dayActivity.minutes} minutes studied`
+                        : "No study activity"
+                    }
                     className={`flex h-7 items-center justify-center rounded-md transition-colors ${isSelected ? "bg-primary text-white shadow-sm" : isRange ? "bg-primary/10 text-on-surface" : "text-on-surface"} ${isMuted ? "text-outline-variant" : ""}`}
                   >
                     {day}

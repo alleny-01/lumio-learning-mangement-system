@@ -1,16 +1,36 @@
 import { Flame } from "lucide-react";
 
-const days = [
-  { label: "M", completed: true },
-  { label: "T", completed: true },
-  { label: "W", completed: true },
-  { label: "T", completed: true },
-  { label: "F", completed: false },
-  { label: "S", completed: false },
-  { label: "S", completed: false },
-];
+import type { DashboardActivity } from "../types";
 
-export default function LearningStreakCard() {
+interface LearningStreakCardProps {
+  streakDays: number;
+  activity: DashboardActivity[];
+}
+
+const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+
+function buildWeek(activity: DashboardActivity[]) {
+  const activeDates = new Set(
+    activity.filter((item) => item.minutes > 0).map((item) => item.date),
+  );
+  const today = new Date();
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (6 - index));
+    return {
+      label: dayLabels[date.getDay()] ?? "",
+      completed: activeDates.has(date.toISOString().slice(0, 10)),
+    };
+  });
+}
+
+export default function LearningStreakCard({
+  streakDays,
+  activity,
+}: LearningStreakCardProps) {
+  const days = buildWeek(activity);
+  const studiedToday = days[days.length - 1]?.completed ?? false;
+
   return (
     <div className="group relative overflow-hidden rounded-sm border border-slate-200/70 bg-gradient-to-br from-white via-slate-50 to-slate-100 p-7 shadow-[0_15px_50px_-18px_rgba(15,23,42,0.18)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_25px_60px_-18px_rgba(79,70,229,0.22)]">
       {/* Decorative Background */}
@@ -47,7 +67,7 @@ export default function LearningStreakCard() {
 
         {/* Number */}
         <h2 className="mt-7 text-5xl font-semibold tracking-tight text-slate-900">
-          {0}
+          {streakDays}
         </h2>
 
         <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-500">
@@ -76,15 +96,13 @@ export default function LearningStreakCard() {
 
         {/* Message */}
         <p className="text-center text-[14px] font-medium text-slate-800">
-          Don't break your streak 🔥
+          {studiedToday ? "Streak extended today" : "Keep your streak alive"}
         </p>
 
         <p className="mt-2 max-w-[240px] text-center text-[12px] leading-6 text-slate-500">
-          You're only{" "}
-          <span className="font-semibold text-lime-600">
-            15 minutes
-          </span>{" "}
-          away from extending your learning streak today.
+          {studiedToday
+            ? "Nice. Your study activity is already saved for today."
+            : "Complete a lesson or log study time to extend your streak today."}
         </p>
 
         {/* Progress */}

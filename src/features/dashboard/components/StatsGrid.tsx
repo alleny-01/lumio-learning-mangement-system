@@ -110,7 +110,7 @@ export function StatsGrid({ stats }: { stats: DashboardStat[] }) {
 
               {stat.chartType === "ring" ? (
                 <RingChart
-                  value={stat.id === "modules" ? 0.48 : 0.6}
+                  value={stat.progress ?? 0}
                   accent={stat.accent}
                 />
               ) : (

@@ -18,7 +18,7 @@ export const mainNavItems: NavItem[] = [
     id: "learning",
     label: "My Learning",
     icon: createElement(GraduationCap, { size: 18, strokeWidth: 0.75 }),
-    to: "/dashboard",
+    to: "/learning",
   },
   {
     id: "courses",

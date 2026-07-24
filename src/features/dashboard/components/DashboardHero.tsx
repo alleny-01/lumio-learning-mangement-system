@@ -1,4 +1,16 @@
-export function DashboardHero(): React.JSX.Element {
+import type { DashboardQuote } from "../types";
+
+interface DashboardHeroProps {
+  firstName: string;
+  weeklyStudyHours: number;
+  quote: DashboardQuote;
+}
+
+export function DashboardHero({
+  firstName,
+  weeklyStudyHours,
+  quote,
+}: DashboardHeroProps): React.JSX.Element {
   return (
     <section className="relative overflow-hidden rounded-sm bg-on-surface px-5 py-6 text-white shadow-[0_16px_40px_-20px_rgba(68,56,190,0.7)] sm:px-6 sm:py-5">
       {/* Background */}
@@ -29,14 +41,16 @@ export function DashboardHero(): React.JSX.Element {
         {/* Welcome */}
         <div className="max-w-2xl">
           <h1 className="text-[18px] font-normal tracking-[-0.02em] sm:text-[20px]">
-            Welcome back, Allen 👋
+            Welcome back, {firstName}
           </h1>
 
           <p className="mt-2 text-[12px] leading-6 tracking-wide text-white/80 sm:text-[13px]">
-            You've completed <span className="font-medium text-white">75%</span>{" "}
-            of your weekly goal. Keep pushing to unlock the{" "}
-            <span className="font-medium text-white">Master Architect</span>{" "}
-            badge.
+            You logged{" "}
+            <span className="font-medium text-white">
+              {weeklyStudyHours} study hours
+            </span>{" "}
+            this week. Keep showing up and your progress graph will do the
+            bragging for you.
           </p>
         </div>
 
@@ -60,13 +74,11 @@ export function DashboardHero(): React.JSX.Element {
           </div>
 
           <p className="text-[13px] leading-6 text-white/90">
-            "Success isn't about studying harder every once in a while—it's
-            about showing up consistently, even on the days you don't feel like
-            it."
+            &quot;{quote.content}&quot;
           </p>
 
           <p className="mt-3 text-[11px] text-white/50">
-            — Daily Learning Inspiration
+            - {quote.author}
           </p>
         </div>
       </div>

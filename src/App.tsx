@@ -10,6 +10,7 @@ import CourseDetailPage from "@/features/courses/detail/pages/CourseDetail";
 import EmailConfirmation from "./features/authentication/pages/EmailConfirmation";
 import ProtectedRoute, { PublicOnlyRoute } from "./components/auth/ProtectedRoute";
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
+import MyLearningPage from "./features/dashboard/pages/MyLearningPage";
 import ViewerPage from "./features/viewer/pages/ViewerPage";
 import SettingsPage from "./features/settings/pages/SettingsPage";
 import LandingPage from "./landing/pages/LandingPage";
@@ -65,6 +66,7 @@ function App() {
             }
           >
             <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="learning" element={<MyLearningPage />} />
             <Route path="courses" element={<CourseCatalog />} />
             <Route path="courses/:courseId" element={<CourseDetailPage />} />
             <Route path="viewer" element={<ViewerPage />} />

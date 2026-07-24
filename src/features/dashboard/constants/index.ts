@@ -46,6 +46,8 @@ export const dashboardCourses: DashboardCourse[] = [
       "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
     progress: 0.25,
     completedLessons: "3/7 lessons completed",
+    href: "/viewer",
+    status: "in-progress",
   },
   {
     id: "design-practice",
@@ -55,6 +57,8 @@ export const dashboardCourses: DashboardCourse[] = [
       "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80",
     progress: 0.14,
     completedLessons: "1/7 lessons completed",
+    href: "/viewer",
+    status: "in-progress",
   },
   {
     id: "commercial-orders",
@@ -64,6 +68,26 @@ export const dashboardCourses: DashboardCourse[] = [
       "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80",
     progress: 0.14,
     completedLessons: "1/7 lessons completed",
+    href: "/viewer",
+    status: "in-progress",
+  },
+];
+
+export const fallbackQuotes = [
+  {
+    content:
+      "Success is the sum of small efforts repeated day in and day out.",
+    author: "Robert Collier",
+  },
+  {
+    content:
+      "Learning never exhausts the mind when curiosity is doing the walking.",
+    author: "Lumio",
+  },
+  {
+    content:
+      "The expert in anything was once a beginner who kept returning.",
+    author: "Lumio",
   },
 ];
 

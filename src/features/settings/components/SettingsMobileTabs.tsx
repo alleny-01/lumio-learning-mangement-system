@@ -1,9 +1,9 @@
-import type { SettingsNavItem } from "../types";
+import type { SettingsNavItem, SettingsSectionId } from "../types";
 
 interface SettingsMobileTabsProps {
   items: SettingsNavItem[];
-  activeId: string;
-  onSelect: (id: string) => void;
+  activeId: SettingsSectionId;
+  onSelect: (id: SettingsSectionId) => void;
 }
 
 export function SettingsMobileTabs({
@@ -24,9 +24,7 @@ export function SettingsMobileTabs({
             className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-[12px] transition-all duration-200 ${
               isActive
                 ? "border-primary/20 bg-primary/10 text-primary shadow-sm"
-                : item.id === "delete"
-                  ? "border-error/15 bg-surface-container-lowest text-error hover:bg-error/5"
-                  : "border-border/50 bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
+                : "border-border/50 bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
             }`}
             aria-pressed={isActive}
           >

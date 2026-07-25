@@ -1,18 +1,22 @@
 import type { LucideIcon } from "lucide-react";
+import type { AuthProvider, ThemePreference } from "@/shared/types/database";
+
+export type SettingsSectionId = "profile" | "security" | "appearance" | "language";
 
 export interface SettingsNavItem {
-  id: string;
+  id: SettingsSectionId;
   label: string;
   icon: LucideIcon;
 }
 
-export interface SettingsActionRow {
-  id: string;
-  title: string;
-  description: string;
-  actionLabel: string;
-  actionVariant?: "primary" | "default" | "destructive";
-  statusLabel?: string;
-  isToggle?: boolean;
-  isToggled?: boolean;
+export interface ProfileSettingsForm {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  bio: string;
+  avatarUrl: string;
+  email: string;
+  authProvider: AuthProvider;
+  themePreference: ThemePreference;
+  language: "en";
 }

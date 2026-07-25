@@ -7,6 +7,7 @@ import ForgotPassword from "./features/authentication/pages/ForgotPassword";
 import LMSProvider from "@/contexts/LMSContext";
 import CourseCatalog from "@/features/courses/catalog/pages/CourseCatalog";
 import CourseDetailPage from "@/features/courses/detail/pages/CourseDetail";
+import InstructorCoursesPage from "@/features/courses/builder/pages/InstructorCoursesPage";
 import EmailConfirmation from "./features/authentication/pages/EmailConfirmation";
 import ProtectedRoute, { PublicOnlyRoute } from "./components/auth/ProtectedRoute";
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
@@ -68,6 +69,7 @@ function App() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="learning" element={<MyLearningPage />} />
             <Route path="courses" element={<CourseCatalog />} />
+            <Route path="instructor/courses" element={<InstructorCoursesPage />} />
             <Route path="courses/:courseId" element={<CourseDetailPage />} />
             <Route path="viewer" element={<ViewerPage />} />
             <Route path="settings" element={<SettingsPage />} />

@@ -4,6 +4,7 @@ import {
   Video,
   Cog,
   LayoutDashboard,
+  SquarePen,
 } from "lucide-react";
 import type { NavItem } from "../types/types";
 
@@ -25,6 +26,12 @@ export const mainNavItems: NavItem[] = [
     label: "Courses",
     icon: createElement(Video, { size: 18, strokeWidth: 0.75 }),
     to: "/courses",
+  },
+  {
+    id: "instructor",
+    label: "Instructor Studio",
+    icon: createElement(SquarePen, { size: 18, strokeWidth: 0.75 }),
+    to: "/instructor/courses",
   },
   {
     id: "settings",

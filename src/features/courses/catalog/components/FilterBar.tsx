@@ -1,37 +1,66 @@
-import Particle from "@/components/ui/p-select-3"
+import { categories } from "../constants";
 
-function FilterBar() {
+interface FilterBarProps {
+  category: string;
+  difficulty: string;
+  minimumRating: number;
+  onCategoryChange: (value: string) => void;
+  onDifficultyChange: (value: string) => void;
+  onMinimumRatingChange: (value: number) => void;
+}
+
+function FilterBar({
+  category,
+  difficulty,
+  minimumRating,
+  onCategoryChange,
+  onDifficultyChange,
+  onMinimumRatingChange,
+}: FilterBarProps) {
   return (
-    <div className="flex items-center justify-between sm:flex-row flex-col gap-3 p-1.5 rounded-xl mb-7">
-      <div className="relative">
-        {/* <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface/60">
-          <CiFilter size={18} />
-        </div>
-        <select className="appearance-none bg-surface-container-lowest text-on-surface shadow-sm text-[13px] px-9 py-2.5  rounded-md cursor-pointer focus:outline-none transition-all focus:border-none">
-          {categories.map((category) => (
-            <option key={category} value={category.toLowerCase()} className="text-xs text-on-surface-variant">
-              {category}
+    <div className="mb-7 grid gap-3 rounded-sm border border-border/40 bg-surface-container-lowest p-3 sm:grid-cols-3">
+      <label className="space-y-1.5 text-[11px] font-light text-on-surface-variant">
+        Category
+        <select
+          value={category}
+          onChange={(event) => onCategoryChange(event.target.value)}
+          className="h-9 w-full rounded-sm bg-surface-container-low px-3 text-xs text-on-surface outline-none"
+        >
+          {categories.map((item) => (
+            <option key={item} value={item}>
+              {item}
             </option>
           ))}
-        </select> */}
-        <Particle />
-      </div>
+        </select>
+      </label>
 
-      <div className="relative">
-        {/* <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface/60">
-          <IoFilterOutline size={18} />
-        </div>
-        <select className="appearance-none bg-surface-container-lowest text-on-surface shadow-sm text-[13px] px-9 py-2.5 rounded-md cursor-pointer focus:outline-none focus:border-none">
-          {
-            sortOptions.map((option) => (
-              <option key={option} value={option.toLowerCase()} className="text-xs text-on-surface-variant">
-                {option}
-              </option>
-            ))
-          }
-        </select> */}
-        <Particle />
-      </div>
+      <label className="space-y-1.5 text-[11px] font-light text-on-surface-variant">
+        Difficulty
+        <select
+          value={difficulty}
+          onChange={(event) => onDifficultyChange(event.target.value)}
+          className="h-9 w-full rounded-sm bg-surface-container-low px-3 text-xs text-on-surface outline-none"
+        >
+          <option value="all">All levels</option>
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+      </label>
+
+      <label className="space-y-1.5 text-[11px] font-light text-on-surface-variant">
+        Minimum rating
+        <select
+          value={minimumRating}
+          onChange={(event) => onMinimumRatingChange(Number(event.target.value))}
+          className="h-9 w-full rounded-sm bg-surface-container-low px-3 text-xs text-on-surface outline-none"
+        >
+          <option value={0}>Any rating</option>
+          <option value={3}>3.0+</option>
+          <option value={4}>4.0+</option>
+          <option value={4.5}>4.5+</option>
+        </select>
+      </label>
     </div>
   );
 }

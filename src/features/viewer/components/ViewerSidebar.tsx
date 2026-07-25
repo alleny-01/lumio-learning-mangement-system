@@ -1,7 +1,26 @@
 import { Lock, LogOut } from "lucide-react";
-import { courseChapters } from "../constants";
+import { Link } from "react-router-dom";
+import type { ChapterItem } from "../types";
 
-export function ViewerSidebar(): React.JSX.Element {
+interface ViewerSidebarProps {
+  courseTitle: string;
+  chapters: ChapterItem[];
+  activeLessonId: string;
+  progressPercent: number;
+  completedLessons: number;
+  totalLessons: number;
+  onLessonSelect: (lessonId: string) => void;
+}
+
+export function ViewerSidebar({
+  courseTitle,
+  chapters,
+  activeLessonId,
+  progressPercent,
+  completedLessons,
+  totalLessons,
+  onLessonSelect,
+}: ViewerSidebarProps): React.JSX.Element {
   return (
     <aside className="flex min-h-screen w-full flex-col  bg-on-surface text-inverse-on-surface lg:w-74 lg:shrink-0">
       <div className="border-b border-white/10 px-4 py-4">
@@ -16,7 +35,7 @@ export function ViewerSidebar(): React.JSX.Element {
 
         <div className="mt-4">
           <h1 className="text-[22px] font-light leading-tight tracking-[-0.03em] text-white">
-            Advanced UI Architecture
+            {courseTitle}
           </h1>
           <p className="mt-1 text-[10px] font-light text-white/55">
             Module 4: Spatial Design Systems
@@ -25,7 +44,7 @@ export function ViewerSidebar(): React.JSX.Element {
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 py-5">
-        {courseChapters.map((chapter) => (
+        {chapters.map((chapter) => (
           <section key={chapter.id} className="mb-6 last:mb-0">
             <div className="mb-2 flex items-center justify-between px-1 text-[10px] font-medium uppercase tracking-[0.2em] text-white/45">
               <span>{chapter.title}</span>
@@ -34,12 +53,15 @@ export function ViewerSidebar(): React.JSX.Element {
 
             <div className="space-y-2">
               {chapter.lessons.map((lesson) => {
-                const isActive = Boolean(lesson.active);
+                const isActive = lesson.id === activeLessonId;
                 const isLocked = Boolean(lesson.locked) || chapter.locked;
 
                 return (
                   <button
                     key={lesson.id}
+                    type="button"
+                    disabled={isLocked}
+                    onClick={() => onLessonSelect(lesson.id)}
                     className={`group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors ${
                       isActive
                         ? "bg-primary/20 text-white shadow-[0_10px_20px_-14px_rgba(53,37,205,0.8)]"
@@ -78,9 +100,9 @@ export function ViewerSidebar(): React.JSX.Element {
           </p>
           <div className="mt-3 flex items-end justify-between gap-3">
             <div>
-              <p className="text-[28px] font-medium leading-none">42%</p>
+              <p className="text-[28px] font-medium leading-none">{progressPercent}%</p>
               <p className="mt-1 text-[10px] font-light text-white/70">
-                6/14 Lessons
+                {completedLessons}/{totalLessons} Lessons
               </p>
             </div>
             <div className="relative h-16 w-16 shrink-0 rounded-full border-4 border-secondary-container/35">
@@ -88,14 +110,17 @@ export function ViewerSidebar(): React.JSX.Element {
             </div>
           </div>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15">
-            <div className="h-full w-[42%] rounded-full bg-secondary-container" />
+            <div
+              className="h-full rounded-full bg-secondary-container"
+              style={{ width: `${progressPercent}%` }}
+            />
           </div>
         </div>
 
-        <button className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 px-4 py-3 text-[12px] text-white/75 transition-colors hover:bg-white/8">
+        <Link to="/learning" className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 px-4 py-3 text-[12px] text-white/75 transition-colors hover:bg-white/8">
           <LogOut className="size-4" />
           Exit Course
-        </button>
+        </Link>
       </div>
     </aside>
   );

@@ -1,7 +1,16 @@
 import { BookOpenCheck, CircleCheckBig } from "lucide-react";
 import { executionSteps } from "../constants";
+import type { ViewerLesson } from "../types";
 
-export function LessonContent() {
+export function LessonContent({
+  lesson,
+  nextLesson,
+  onNextLesson,
+}: {
+  lesson: ViewerLesson;
+  nextLesson: ViewerLesson | null;
+  onNextLesson: () => void;
+}) {
   return (
     <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_260px]">
       <div className="space-y-4">
@@ -10,13 +19,10 @@ export function LessonContent() {
             Core Concept
           </p>
           <h1 className="mt-3 text-[28px] font-medium tracking-[-0.04em] text-on-background sm:text-[34px]">
-            Understanding Surface Hierarchy
+            {lesson.title}
           </h1>
           <p className="mt-3 max-w-2xl text-[13px] font-light leading-7 text-on-surface-variant">
-            The transition from standard industrial layouts to the “Digital
-            Atelier” starts with how we perceive depth in this lesson. We
-            explore the layering principle, which dictates that depth should be
-            achieved through tonal shifts rather than traditional shadows.
+            {lesson.description}
           </p>
         </div>
 
@@ -56,10 +62,7 @@ export function LessonContent() {
         </div>
 
         <p className="max-w-2xl text-[13px] font-light leading-7 text-on-surface-variant">
-          By treating the UI as a series of physical layers—much like stacked
-          sheets of premium vellum—we create an environment that feels
-          weightless yet deeply organized. This editorial approach is what
-          separates high-end spatial products from basic utility apps.
+          {lesson.coreConcept}
         </p>
       </div>
 
@@ -79,11 +82,22 @@ export function LessonContent() {
               </div>
             </div>
             <p className="mt-3 text-[13px] font-semibold text-on-background">
-              Asymmetric Visual Rhythm
+              {nextLesson?.title ?? "Course complete"}
             </p>
             <p className="mt-1 text-[10px] font-light text-on-surface-variant">
-              Coming up next · 15:00 mins
+              {nextLesson
+                ? `Coming up next · ${nextLesson.durationMinutes}:00 mins`
+                : "You reached the end of this course."}
             </p>
+            {nextLesson && (
+              <button
+                type="button"
+                onClick={onNextLesson}
+                className="mt-3 rounded-sm bg-primary-container px-3 py-2 text-[11px] text-white"
+              >
+                Next lesson
+              </button>
+            )}
           </div>
         </div>
       </div>

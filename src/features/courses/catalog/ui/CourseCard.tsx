@@ -1,5 +1,6 @@
 import type { Course } from "../types/types";
 import { GoArrowUpRight } from "react-icons/go";
+import { Link } from "react-router-dom";
 
 interface CourseCardProps {
   course: Course;
@@ -12,7 +13,7 @@ const badgeColorMap = {
 
 export function CourseCard({ course }: CourseCardProps) {
   return (
-    <div className="group cursor-pointer px-2">
+    <Link className="group block px-2" to={`/courses/${course.id}`}>
       <div className="relative aspect-[4/3] mb-4 overflow-hidden rounded-sm bg-surface-container">
         <img
           alt={course.imageAlt}
@@ -46,16 +47,27 @@ export function CourseCard({ course }: CourseCardProps) {
           {course.title}
         </h3>
 
-        <p className="font-light text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Aspernatur unde nemo libero quisquam sunt autem nesciunt eveniet repudiandae magni eaque laboriosam, vitae hic minima nis</p>
+        <p className="line-clamp-3 font-light text-xs">{course.description}</p>
         <p className="text-[13px] text-muted-foreground mt-3 font-medium">
           {course.instructor}
         </p>
+        <div className="flex flex-wrap gap-2 pt-2 text-[10px] font-light text-on-surface-variant">
+          <span className="rounded-sm bg-surface-container-low px-2 py-1 capitalize">
+            {course.difficulty}
+          </span>
+          <span className="rounded-sm bg-surface-container-low px-2 py-1">
+            {course.duration}
+          </span>
+          <span className="rounded-sm bg-surface-container-low px-2 py-1">
+            {course.enrolledCount} learners
+          </span>
+        </div>
         <div className="pt-2 flex items-center justify-end">
           <span className="material-symbols-outlined text-outline group-hover:text-primary transition-all">
             <GoArrowUpRight className="text-[17px]" />
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

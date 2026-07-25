@@ -15,7 +15,7 @@ export const CourseSyllabus: React.FC<CourseSyllabusProps> = ({ modules }) => {
   };
 
   return (
-    <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-8 w-full">
+    <section id="course-syllabus" className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-8 w-full">
       <div className="mb-12 sm:mb-16">
         <h2 className="text-xs font-label font-bold text-primary uppercase tracking-[0.2em] mb-3 sm:mb-4">
           Curriculum

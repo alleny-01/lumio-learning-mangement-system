@@ -5,9 +5,17 @@ import { Link } from "react-router-dom";
 
 interface CourseHeroProps {
   course: CourseDetail;
+  isEnrolled: boolean;
+  isEnrolling: boolean;
+  onEnroll: () => void;
 }
 
-export const CourseHero: React.FC<CourseHeroProps> = ({ course }) => {
+export const CourseHero: React.FC<CourseHeroProps> = ({
+  course,
+  isEnrolled,
+  isEnrolling,
+  onEnroll,
+}) => {
   const [titleMain, titleSub] = course.title.split("&").map((s) => s.trim());
 
   return (
@@ -74,14 +82,21 @@ export const CourseHero: React.FC<CourseHeroProps> = ({ course }) => {
               <Button
                 variant="default"
                 size="lg"
+                disabled={isEnrolling}
+                onClick={onEnroll}
                 className="inline-flex items-center gap-1.5 text-[13px] text-background bg-foreground rounded- px-5 py-2.5 transition-opacity"
               >
-                Enroll now
+                {isEnrolled ? "Continue learning" : isEnrolling ? "Enrolling..." : "Enroll now"}
               </Button>
               <Button
                 variant="outline"
                 size="lg"
                 className="inline-flex items-center text-[13px] text-foreground border border-border rounded-lg px-5 py-2.5 hover:bg-muted transition-colors"
+                onClick={() =>
+                  document
+                    .getElementById("course-syllabus")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
               >
                     Preview syllabus
                     </Button>
@@ -106,7 +121,7 @@ export const CourseHero: React.FC<CourseHeroProps> = ({ course }) => {
           <div className="order-first md:order-last">
             <div className="rounded-sm border border-border overflow-hidden bg-background hover:border-border/80 transition-colors">
               <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcQ7pFGmYTGFPJ911F9Tvn5yAioXsrmqXtk0fubjqNeaJap4nmQbxq9uLpr-vF6JxLWTq1IQVWYHVZnGST-BgzLPlbpw7OLMhzpWn3j-XZsNo12Ucr2bC-7DbjocYcBRwAQivy47g7gVV3hTMkzNe3fT_iPKzM5eqNQBANT3cFzxFKbF12ILinC8fXwG5y4GcLsjMjyKsfkDcOB_wdAtt00nnRm6Fic7IUxCt59kYquNYBZCRwPLfVcxdWaQiqkwoH9SLa4X_U1io"
+                src={course.courseImage}
                 alt={`${course.title} preview`}
                 className="w-full aspect-[4/3] object-cover block"
               />
@@ -114,12 +129,15 @@ export const CourseHero: React.FC<CourseHeroProps> = ({ course }) => {
                 <span className="text-[11px] text-muted-foreground">
                   Course preview
                 </span>
-                <button className="inline-flex items-center gap-1 text-[11px] text-muted-foreground bg-muted border border-border rounded-md px-2.5 py-1 hover:bg-muted/80 transition-colors">
+                <Link
+                  to={`/viewer?course=${course.id}`}
+                  className="inline-flex items-center gap-1 text-[11px] text-muted-foreground bg-muted border border-border rounded-md px-2.5 py-1 hover:bg-muted/80 transition-colors"
+                >
                   <span className="material-symbols-outlined text-[12px]">
                     play_arrow
                   </span>
                   Watch intro
-                </button>
+                </Link>
               </div>
             </div>
           </div>

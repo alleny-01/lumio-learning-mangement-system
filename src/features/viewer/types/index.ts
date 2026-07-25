@@ -26,3 +26,24 @@ export interface ResourceItem {
   label: string;
   count?: string;
 }
+
+export interface ViewerLesson {
+  id: string;
+  courseId: string;
+  title: string;
+  description: string;
+  youtubeUrl: string;
+  durationMinutes: number;
+  coreConcept: string;
+  completed: boolean;
+}
+
+export interface ViewerData {
+  courseTitle: string;
+  chapters: ChapterItem[];
+  activeLesson: ViewerLesson;
+  nextLesson: ViewerLesson | null;
+  progressPercent: number;
+  completedLessons: number;
+  totalLessons: number;
+}

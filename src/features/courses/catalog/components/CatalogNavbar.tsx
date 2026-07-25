@@ -1,11 +1,22 @@
-import SearchBar from "@/components/ui/Search";
+interface CatalogNavbarProps {
+  search: string;
+  onSearchChange: (value: string) => void;
+}
 
-function CatalogNavbar() {
+function CatalogNavbar({ search, onSearchChange }: CatalogNavbarProps) {
   return (
-    <header className="fixed top-0 z-50 w-full bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md">
-      <nav className="flex justify-between items-center w-full px-3 py-3 max-w-full mx-auto">
-        <SearchBar />
-      </nav>
+    <header className="mb-6 rounded-sm border border-border/40 bg-surface-container-lowest p-3">
+      <label className="sr-only" htmlFor="course-search">
+        Search courses
+      </label>
+      <input
+        id="course-search"
+        type="search"
+        value={search}
+        onChange={(event) => onSearchChange(event.target.value)}
+        placeholder="Search courses, instructors, or skills"
+        className="h-10 w-full rounded-sm bg-surface-container-low px-4 text-xs font-light outline-none ring-1 ring-transparent transition focus:bg-surface-container-lowest focus:ring-primary/20"
+      />
     </header>
   );
 }

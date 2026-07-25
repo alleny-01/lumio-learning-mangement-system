@@ -47,4 +47,5 @@ export interface CourseDetail {
   enrolledCount: number;
   price: number;
   courseImage: string;
+  previewVideoUrl?: string | null;
 }

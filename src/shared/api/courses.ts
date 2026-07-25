@@ -120,3 +120,26 @@ export function upsertLessons(courseId: string, lessons: LessonDraftInput[]) {
 export function deleteLesson(lessonId: string) {
   return supabase.from("lessons").delete().eq("id", lessonId);
 }
+
+export async function duplicateCourse(courseId: string, instructorId: string) {
+  const { data: source, error } = await supabase
+    .from("courses")
+    .select("*")
+    .eq("id", courseId)
+    .single();
+  if (error || !source) return { data: null, error };
+
+  const duplicateTitle = `${source.title} Copy`;
+  return createCourseDraft({
+    instructor_id: instructorId,
+    title: duplicateTitle,
+    slug: `${source.slug}-copy-${Date.now()}`,
+    description: source.description,
+    thumbnail_url: source.thumbnail_url,
+    category: source.category,
+    difficulty: source.difficulty,
+    preview_video_url: source.preview_video_url,
+    duration_minutes: source.duration_minutes,
+    status: "draft",
+  });
+}

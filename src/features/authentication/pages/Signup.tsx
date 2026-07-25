@@ -12,6 +12,9 @@ import AuthenticationForm from "../components/AuthenticationForm";
 import AuthenticationHeader from "../components/AuthenticationHeader";
 import AuthenticationLayout from "../components/AuthenticationLayout";
 
+const signUpBackgroundImage =
+  "https://images.unsplash.com/photo-1778735940467-1335c201966d?auto=format&fit=crop&ixlib=rb-4.1.0&q=80&w=1800";
+
 function SignupPage(): React.JSX.Element {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
@@ -93,11 +96,12 @@ function SignupPage(): React.JSX.Element {
         onMouseLeave={() => setIsHovered(false)}
       >
         <div
-          className={`absolute inset-0 bg-[url(lumioauth.png)] bg-no-repeat bg-center bg-cover transition-all duration-700 ease-in-out ${
+          className={`absolute inset-0 bg-no-repeat bg-center bg-cover transition-all duration-700 ease-in-out ${
             isHovered
               ? "scale-[1.2] shadow-[0_0_40px_rgba(168,85,247,0.4),0_0_80px_rgba(59,130,246,0.2)]"
               : "scale-100"
           }`}
+          style={{ backgroundImage: `url("/AuthBackground.png")` }}
         />
         {isHovered && (
           <div className="absolute inset-0 bg-gradient-radial from-purple-500/20 to-transparent opacity-0 animate-pulse-glow" />

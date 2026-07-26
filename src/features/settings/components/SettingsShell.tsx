@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
-import { Loader2 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { LMSContext } from "@/contexts/LMSContext";
 import { showToast } from "@/components/ui/Toast";
 import { updatePassword } from "@/shared/api/auth";
@@ -278,7 +278,7 @@ export function SettingsShell() {
     if (error) setAuthError(error.message);
   }
 
-  const content = useMemo(() => {
+  const content = (() => {
     if (!profile) return null;
 
     if (activeSection === "profile") {
@@ -320,7 +320,7 @@ export function SettingsShell() {
     }
 
     return <LanguageSection language={profile.language} />;
-  }, [activeSection, isDirty, isSaving, isUploading, profile, savedProfile]);
+  })();
 
   return (
     <div className="min-h-screen bg-surface text-on-surface antialiased">
@@ -341,9 +341,18 @@ export function SettingsShell() {
               onSelect={setActiveSection}
             />
             {isLoading ? (
-              <section className="flex min-h-64 items-center justify-center rounded-[22px] border border-border/30 bg-surface-container-lowest text-[12px] text-on-surface-variant">
-                <Loader2 className="mr-2 size-4 animate-spin text-primary" />
-                Loading settings...
+              <section className="rounded-[22px] border border-border/30 bg-surface-container-lowest px-5 py-5 sm:px-6 sm:py-6">
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="mt-3 h-4 w-2/3" />
+                <div className="mt-8 grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+                  <Skeleton className="size-22 rounded-full" />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-28 w-full sm:col-span-2" />
+                  </div>
+                </div>
               </section>
             ) : (
               content

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { LMSContext } from "@/contexts/LMSContext";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { enrollInCourse, getEnrollment } from "@/shared/api/enrollments";
 import { CourseHero } from "../components/CourseHero";
 import { CourseOverview } from "../components/CourseOverview";
@@ -70,8 +71,28 @@ function CourseDetailPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <main className="flex-grow px-4 py-10 sm:px-8">
+        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1.1fr_0.9fr]">
+          <div>
+            <Skeleton className="h-7 w-36" />
+            <Skeleton className="mt-8 h-10 w-4/5" />
+            <Skeleton className="mt-4 h-4 w-full" />
+            <Skeleton className="mt-2 h-4 w-3/4" />
+            <div className="mt-8 flex gap-2">
+              <Skeleton className="h-10 w-32" />
+              <Skeleton className="h-10 w-36" />
+            </div>
+          </div>
+          <Skeleton className="aspect-[4/3] w-full" />
+        </div>
+      </main>
+    );
+  }
+
   return (
-      <main className={`flex-grow ${isLoading ? "animate-pulse" : ""}`}>
+    <main className="flex-grow">
       <CourseHero
         course={course}
         isEnrolled={isEnrolled}

@@ -40,7 +40,7 @@ function calculateStreak(activity: DashboardActivity[]) {
   const activeDates = new Set(
     activity.filter((item) => item.minutes > 0).map((item) => item.date),
   );
-  let cursor = startOfDay(new Date());
+  const cursor = startOfDay(new Date());
   let streak = 0;
 
   while (activeDates.has(isoDate(cursor))) {

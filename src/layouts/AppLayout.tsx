@@ -4,7 +4,6 @@ function AppLayout() {
   return (
     <main>
       <Outlet />
-      {/* <Footer linkGroups={footerLinkGroups} socialLinks={socialLinks} /> */}
     </main>
   );
 }

@@ -27,7 +27,7 @@ function SigninPage(): React.JSX.Element {
   const persistSignUpEmail = (email: string) => {
     try {
       localStorage.setItem("lumio_sign_up_email", email);
-    } catch (e) {
+    } catch {
       // ignore
     }
   };
@@ -84,16 +84,7 @@ function SigninPage(): React.JSX.Element {
   return (
     <AuthenticationLayout>
       <AuthenticationForm>
-        {/* Hero Section */}
         <div className="relative mb-8">
-          {/* <div className="flex justify-center">
-            <div className="inline-flex items-center gap-3 rounded-full text-black px-4 py-2 backdrop-blur-sm ">
-              <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-sm uppercase text-muted-foreground font-normal tracking-wider">
-                Sign in to lumio
-              </span>
-            </div>
-          </div> */}
           <div className="mt-4">
             <AuthenticationHeader
             title="Welcome back to Lumio 👋"
@@ -102,7 +93,6 @@ function SigninPage(): React.JSX.Element {
           </div>
         </div>
 
-        {/* Authentication Card */}
         <div className="rounded-sm bg-card/50 shadow-md p-8 ">
           <form
             className="space-y-6"
@@ -146,7 +136,6 @@ function SigninPage(): React.JSX.Element {
             </Button>
           </form>
 
-          {/* Divider */}
           <div className="relative my-8">
             <div
               aria-hidden="true"
@@ -161,7 +150,6 @@ function SigninPage(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Social Login */}
           <div className="flex items-center justify-center">
             {" "}
             <SocialButton
@@ -172,13 +160,11 @@ function SigninPage(): React.JSX.Element {
             </SocialButton>{" "}
           </div>
 
-          {/* Trust Indicators */}
           <p className="text-center mt-4 text-[8.3px] sm:text-[10px] tracking-widest text-muted-foreground">
             Protected with industry-standard encryption
           </p>
         </div>
 
-        {/* Footer */}
         <div className="mt-10 text-center space-y-3">
           <p className="text-xs text-muted-foreground">
             Don&apos;t have an account?{" "}

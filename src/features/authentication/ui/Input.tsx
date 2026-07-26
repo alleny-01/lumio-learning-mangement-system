@@ -59,6 +59,8 @@ function Input({
           type={inputType}
           value={value}
           onChange={onChange}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id}-error` : undefined}
           {...props}
         />
 
@@ -86,6 +88,11 @@ function Input({
           </Link>
         )}
       </div>
+      {error ? (
+        <p id={`${id}-error`} className="px-1 text-[11px] text-error">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

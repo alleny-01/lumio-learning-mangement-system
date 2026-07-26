@@ -4,6 +4,7 @@ import {
   ChartColumnBig,
   Layers3,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import type { DashboardStat } from "../types";
 
 const linePaths: Record<string, string> = {
@@ -91,9 +92,14 @@ export function StatsGrid({ stats }: { stats: DashboardStat[] }) {
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {stats.map((stat) => (
-          <article
+          <motion.article
             key={stat.id}
-            className="rounded-sm border border-border/40 bg-surface-container-lowest p-4 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.35)]"
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-sm border border-border/40 bg-surface-container-lowest p-4 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.35)] transition-shadow hover:shadow-[0_18px_36px_-28px_rgba(53,37,205,0.35)]"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -119,7 +125,7 @@ export function StatsGrid({ stats }: { stats: DashboardStat[] }) {
                 </div>
               )}
             </div>
-          </article>
+          </motion.article>
         ))}
       </div>
     </section>

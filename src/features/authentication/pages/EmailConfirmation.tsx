@@ -12,28 +12,27 @@ const RESEND_COOLDOWN_SECONDS = 45;
 
 function EmailConfirmation(): React.JSX.Element {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<Status>("waiting");
+  const [status, setStatus] = useState<Status>(() =>
+    new URLSearchParams(window.location.search).get("code")
+      ? "confirming"
+      : "waiting",
+  );
   const [resendState, setResendState] = useState<"idle" | "sending" | "sent">(
     "idle",
   );
   const [cooldown, setCooldown] = useState(0);
   const [redirectIn, setRedirectIn] = useState(3);
-  const [signUpEmail, setSignUpEmail] = useState<string>("");
+  const [signUpEmail] = useState<string>(
+    () => localStorage.getItem("lumio_sign_up_email") ?? "",
+  );
   const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const { resendVerification } = useContext(LMSContext);
 
   useEffect(() => {
-    setSignUpEmail(localStorage.getItem("lumio_sign_up_email") ?? "");
-  }, []);
-
-  useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("code");
 
     if (code) {
-      // User just clicked the email link and landed here with a code
-      setStatus("confirming");
-
       exchangeAuthCodeForSession(code).then(({ error }) => {
         if (error) {
           setStatus("error");
@@ -87,7 +86,7 @@ function EmailConfirmation(): React.JSX.Element {
       } else {
         setResendState("idle");
       }
-    } catch (err) {
+    } catch {
       setResendState("idle");
     }
   };
@@ -102,7 +101,7 @@ function EmailConfirmation(): React.JSX.Element {
           if (data?.session) {
             setStatus("success");
           }
-        } catch (e) {
+        } catch {
           // ignore
         }
       }, 3000);

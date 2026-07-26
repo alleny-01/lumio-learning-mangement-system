@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import type { DashboardCourse } from "../types";
 
 interface CoursesSectionProps {
@@ -32,16 +33,23 @@ export function CoursesSection({
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {courses.map((course) => (
-          <Link
+          <motion.div
             key={course.id}
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            whileHover={{ y: -5 }}
+            transition={{ duration: 0.25 }}
+          >
+          <Link
             to={course.href}
-            className="overflow-hidden rounded-sm border border-border/40 bg-surface-container-lowest shadow-[0_8px_20px_-18px_rgba(15,23,42,0.35)]"
+            className="block overflow-hidden rounded-sm border border-border/40 bg-surface-container-lowest shadow-[0_8px_20px_-18px_rgba(15,23,42,0.35)] transition-shadow hover:shadow-[0_18px_36px_-26px_rgba(53,37,205,0.45)]"
           >
             <div className="aspect-4/3 overflow-hidden bg-surface-container-low">
               <img
                 src={course.image}
                 alt={course.title}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
               />
             </div>
 
@@ -69,6 +77,7 @@ export function CoursesSection({
               </div>
             </div>
           </Link>
+          </motion.div>
         ))}
       </div>
     </section>

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { LMSContext } from "@/contexts/LMSContext";
 import { DashboardShell } from "../components/DashboardShell";
+import { DashboardSkeleton } from "../components/DashboardSkeleton";
 import {
   createFallbackDashboardData,
   loadDashboardData,
@@ -47,9 +48,7 @@ export default function DashboardPage() {
     };
   }, [session?.user.email, session?.user.id, setAuthError]);
 
-  return (
-    <div className={isLoading ? "animate-pulse" : undefined}>
-      <DashboardShell data={data} />
-    </div>
-  );
+  if (isLoading) return <DashboardSkeleton />;
+
+  return <DashboardShell data={data} />;
 }

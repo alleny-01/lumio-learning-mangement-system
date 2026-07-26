@@ -31,25 +31,28 @@ export default function CourseCatalogPage() {
 
   useEffect(() => {
     let isMounted = true;
-    setIsLoading(true);
 
-    loadCatalogCourses({
-      search: debouncedSearch,
-      category,
-      difficulty,
-      minimumRating,
-      page,
-      pageSize: PAGE_SIZE,
-    })
-      .then((result) => {
+    async function loadCourses() {
+      setIsLoading(true);
+      try {
+        const result = await loadCatalogCourses({
+          search: debouncedSearch,
+          category,
+          difficulty,
+          minimumRating,
+          page,
+          pageSize: PAGE_SIZE,
+        });
         if (!isMounted) return;
         setCourses(result.courses);
         setTotal(result.total);
         setIsFallback(result.isFallback);
-      })
-      .finally(() => {
+      } finally {
         if (isMounted) setIsLoading(false);
-      });
+      }
+    }
+
+    void loadCourses();
 
     return () => {
       isMounted = false;
@@ -91,9 +94,7 @@ export default function CourseCatalogPage() {
           </p>
         )}
 
-        <div className={isLoading ? "animate-pulse" : undefined}>
-          <CourseGrid courses={courses} />
-        </div>
+        <CourseGrid courses={courses} isLoading={isLoading} />
 
         <div className="mt-14 flex flex-col items-center gap-4">
           <div className="flex items-center gap-2">
@@ -118,7 +119,7 @@ export default function CourseCatalogPage() {
             </button>
           </div>
           <p className="text-on-surface-variant text-xs font-medium">
-            Showing {courses.length} of {total} courses available
+            Showing {isLoading ? "..." : courses.length} of {total} courses available
           </p>
         </div>
       </main>

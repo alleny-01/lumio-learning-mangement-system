@@ -1,6 +1,7 @@
 import type { Course } from "../types/types";
 import { GoArrowUpRight } from "react-icons/go";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface CourseCardProps {
   course: Course;
@@ -13,6 +14,13 @@ const badgeColorMap = {
 
 export function CourseCard({ course }: CourseCardProps) {
   return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      whileHover={{ y: -6 }}
+      transition={{ duration: 0.28 }}
+    >
     <Link className="group block px-2" to={`/courses/${course.id}`}>
       <div className="relative aspect-[4/3] mb-4 overflow-hidden rounded-sm bg-surface-container">
         <img
@@ -69,5 +77,6 @@ export function CourseCard({ course }: CourseCardProps) {
         </div>
       </div>
     </Link>
+    </motion.div>
   );
 }

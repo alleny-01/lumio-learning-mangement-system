@@ -53,7 +53,6 @@ export function DashboardShell({ data }: { data: DashboardData }): React.JSX.Ele
       <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-6">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-6">
           <div className="space-y-4">
-            {/* <TopBar /> */}
             <DashboardHero
               firstName={data.firstName}
               weeklyStudyHours={data.weeklyStudyHours}

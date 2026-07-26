@@ -1,6 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { Copy, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { motion } from "framer-motion";
 import { LMSContext } from "@/contexts/LMSContext";
 import {
   deleteCourse,
@@ -51,7 +53,7 @@ function InstructorCoursesPage(): React.JSX.Element {
   );
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
 
-  const loadCourses = async () => {
+  const loadCourses = useCallback(async () => {
     if (!session?.user.id) return;
     setIsLoading(true);
     try {
@@ -68,11 +70,11 @@ function InstructorCoursesPage(): React.JSX.Element {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [session?.user.id, setAuthError]);
 
   useEffect(() => {
     loadCourses();
-  }, [session?.user.id]);
+  }, [loadCourses]);
 
   const openBuilder = (course?: InstructorCourse) => {
     setBuilderDraft(course ? draftFromCourse(course) : null);
@@ -118,8 +120,25 @@ function InstructorCoursesPage(): React.JSX.Element {
         </Button>
       </header>
 
-      <section className={isLoading ? "animate-pulse" : undefined}>
-        {courses.length === 0 ? (
+      <section>
+        {isLoading ? (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <article
+                key={index}
+                className="rounded-sm border border-border/40 bg-surface-container-lowest p-4"
+              >
+                <Skeleton className="aspect-[4/3] w-full" />
+                <Skeleton className="mt-4 h-4 w-3/4" />
+                <Skeleton className="mt-3 h-3 w-full" />
+                <div className="mt-5 flex gap-2">
+                  <Skeleton className="h-7 w-16" />
+                  <Skeleton className="h-7 w-24" />
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : courses.length === 0 ? (
           <div className="rounded-sm border border-border/40 bg-surface-container-lowest p-8 text-center">
             <h2 className="text-sm font-medium">No authored courses yet</h2>
             <p className="mt-2 text-xs text-on-surface-variant">
@@ -129,9 +148,14 @@ function InstructorCoursesPage(): React.JSX.Element {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {courses.map((course) => (
-              <article
+              <motion.article
                 key={course.id}
-                className="rounded-sm border border-border/40 bg-surface-container-lowest p-4"
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                whileHover={{ y: -5 }}
+                transition={{ duration: 0.25 }}
+                className="rounded-sm border border-border/40 bg-surface-container-lowest p-4 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.35)] transition-shadow hover:shadow-[0_18px_36px_-28px_rgba(53,37,205,0.35)]"
               >
                 <div className="aspect-[4/3] overflow-hidden rounded-sm bg-surface-container-low">
                   {course.thumbnail_url ? (
@@ -194,7 +218,7 @@ function InstructorCoursesPage(): React.JSX.Element {
                     </Button>
                   </div>
                 </div>
-              </article>
+              </motion.article>
             ))}
           </div>
         )}

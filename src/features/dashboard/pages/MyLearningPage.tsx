@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { LMSContext } from "@/contexts/LMSContext";
 import { CoursesSection } from "../components/CoursesSection";
+import { Skeleton } from "@/components/ui/Skeleton";
 import {
   createFallbackDashboardData,
   loadDashboardData,
@@ -59,13 +60,29 @@ function MyLearningPage(): React.JSX.Element {
         </p>
       </header>
 
-      <div className={isLoading ? "animate-pulse" : undefined}>
+      {isLoading ? (
+        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <article
+              key={index}
+              className="overflow-hidden rounded-sm border border-border/40 bg-surface-container-lowest"
+            >
+              <Skeleton className="aspect-[4/3] w-full" />
+              <div className="space-y-3 px-4 py-3">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-2 w-full" />
+              </div>
+            </article>
+          ))}
+        </section>
+      ) : (
         <CoursesSection
           courses={data.courses}
           title="All enrolled courses"
           showAllLink={false}
         />
-      </div>
+      )}
     </div>
   );
 }

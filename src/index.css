@@ -32,7 +32,7 @@ h3 {
 }
 
 input[type="checkbox"] {
-  accent-color: #3525cd; /* change to any color */
+  accent-color: #3525cd;
 }
 
 @theme inline {
@@ -276,8 +276,6 @@ input[type="checkbox"] {
     @apply font-sans;
   }
 }
-
-/**/
 @keyframes float {
   0% {
     transform: translateY(0px) rotate(0deg);

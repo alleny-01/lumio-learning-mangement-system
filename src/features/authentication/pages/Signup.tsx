@@ -12,8 +12,7 @@ import AuthenticationForm from "../components/AuthenticationForm";
 import AuthenticationHeader from "../components/AuthenticationHeader";
 import AuthenticationLayout from "../components/AuthenticationLayout";
 
-const signUpBackgroundImage =
-  "https://images.unsplash.com/photo-1778735940467-1335c201966d?auto=format&fit=crop&ixlib=rb-4.1.0&q=80&w=1800";
+const signUpBackgroundImage = "/AuthBackground.png";
 
 function SignupPage(): React.JSX.Element {
   const [firstName, setFirstName] = useState<string>("");
@@ -41,7 +40,7 @@ function SignupPage(): React.JSX.Element {
   const persistSignUpEmail = (email: string) => {
     try {
       localStorage.setItem("lumio_sign_up_email", email);
-    } catch (e) {
+    } catch {
       // ignore
     }
   };
@@ -101,12 +100,13 @@ function SignupPage(): React.JSX.Element {
               ? "scale-[1.2] shadow-[0_0_40px_rgba(168,85,247,0.4),0_0_80px_rgba(59,130,246,0.2)]"
               : "scale-100"
           }`}
-          style={{ backgroundImage: `url("/AuthBackground.png")` }}
+          style={{ backgroundImage: `url("${signUpBackgroundImage}")` }}
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/5 to-black/45 md:bg-gradient-to-r md:from-black/35 md:via-black/5 md:to-transparent" />
         {isHovered && (
           <div className="absolute inset-0 bg-gradient-radial from-purple-500/20 to-transparent opacity-0 animate-pulse-glow" />
         )}
-        <div className="hidden sm:flex absolute top-20 left-25 flex-col gap-3 max-w-sm">
+        <div className="absolute inset-x-4 bottom-5 flex flex-col gap-3 rounded-md border border-white/15 bg-black/18 p-4 text-white backdrop-blur-sm sm:inset-auto sm:left-25 sm:top-20 sm:max-w-sm sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
           <span className="inline-flex items-center gap-2 w-fit rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-3 py-1 text-[9px] uppercase tracking-[0.2em] text-white/80">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
             Now onboarding
@@ -126,15 +126,6 @@ function SignupPage(): React.JSX.Element {
 
       <AuthenticationLayout>
         <AuthenticationForm>
-          {/* <div className="mb-1 flex justify-center">
-            <div className="inline-flex items-center gap-3 rounded-full text-black px-4 py-2 backdrop-blur-sm ">
-              <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-sm uppercase text-muted-foreground font-normal tracking-wider">
-                Sign up to lumio
-              </span>
-            </div>
-          </div> */}
-
           <AuthenticationHeader
             title="Create your account"
             subtitle="Enter the digital atelier to start your mastery."
@@ -436,7 +427,6 @@ function SignupPage(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="mt-10 text-center text-xs">
             <p className="font-body text-on-surface-variant">
               Already an initiate?{" "}

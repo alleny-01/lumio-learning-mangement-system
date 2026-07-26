@@ -322,6 +322,23 @@ export function AnchoredToastProvider({
 
 export { Toast as ToastPrimitive };
 
+interface ToastManagerLike {
+  add?: (toast: ToastPayload) => void;
+  create?: (toast: ToastPayload) => void;
+  notify?: (toast: ToastPayload) => void;
+  push?: (toast: ToastPayload) => void;
+  show?: (toast: ToastPayload) => void;
+}
+
+interface ToastPayload {
+  id: string;
+  type?: "error" | "info" | "loading" | "success" | "warning";
+  title?: string;
+  description?: string;
+  duration: number;
+  actionProps?: { children: React.ReactNode };
+}
+
 // Convenience helper for showing toasts from non-hook code.
 export function showToast(opts: {
   type?: "error" | "info" | "loading" | "success" | "warning";
@@ -330,8 +347,8 @@ export function showToast(opts: {
   duration?: number;
   action?: React.ReactNode;
 }) {
-  const manager: any = toastManager as any;
-  const toast = {
+  const manager = toastManager as ToastManagerLike;
+  const toast: ToastPayload = {
     id: `t-${Date.now()}`,
     type: opts.type,
     title: opts.title,
@@ -359,10 +376,9 @@ export function showToast(opts: {
   }
   // Last resort: use provider's internal create method if available
   try {
-    (manager as any).create?.(toast);
+    manager.create?.(toast);
   } catch (e) {
     // swallow - no toast capability available
-    // eslint-disable-next-line no-console
     console.warn("Toast manager unavailable:", e);
   }
 }

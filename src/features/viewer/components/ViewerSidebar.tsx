@@ -22,7 +22,7 @@ export function ViewerSidebar({
   onLessonSelect,
 }: ViewerSidebarProps): React.JSX.Element {
   return (
-    <aside className="flex min-h-screen w-full flex-col  bg-on-surface text-inverse-on-surface lg:w-74 lg:shrink-0">
+    <aside className="flex min-h-screen w-full flex-col bg-black text-inverse-on-surface lg:w-74 lg:shrink-0">
       <div className="border-b border-white/10 px-4 py-4">
         <div className="inline-flex items-center gap-2 rounded-sm bg-white/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-inverse-on-surface">
           <span className="text-[11px] font-bold text-secondary-container">

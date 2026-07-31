@@ -199,7 +199,7 @@ export function CourseBuilderDialog({
       >
         <header className="flex items-center justify-between border-b border-outline-variant/30 px-5 py-4">
           <div>
-            <p className="text-[10px] font-light uppercase tracking-[0.24em] text-primary">
+            <p className="text-[10px] font-light uppercase tracking-[0.24em]">
               Course Builder
             </p>
             <h2 id="course-builder-title" className="mt-1 text-sm font-medium">
@@ -423,7 +423,9 @@ export function CourseBuilderDialog({
                               })
                             }
                           />
-                          <input
+                          <div className="flex items-center gap-2">
+                            <label className="text-xs">Duration(Minutes)</label>
+                             <input
                             className={fieldClass()}
                             type="number"
                             min={0}
@@ -434,6 +436,7 @@ export function CourseBuilderDialog({
                               })
                             }
                           />
+                          </div>
                           <input
                             className={fieldClass()}
                             value={lesson.coreConcept}

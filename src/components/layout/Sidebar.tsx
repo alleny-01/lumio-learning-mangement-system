@@ -93,12 +93,6 @@ function Sidebar({
             </div>
           </div>
 
-          {isCollapsed && (
-            <div className="hidden h-8 w-8 items-center justify-center rounded-sm bg-primary text-[11px] font-medium text-on-primary md:flex">
-              L
-            </div>
-          )}
-
           <div className="flex items-center gap-1">
             <button
               type="button"
@@ -203,8 +197,8 @@ function Sidebar({
       {isLogoutModalOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-sm border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-2xl">
-            <div className="mx-auto flex size-12 items-center justify-center rounded-sm bg-primary/10 text-primary">
-              <PanelLeftClose size={22} strokeWidth={1.3} />
+            <div className="mx-auto flex size-12 items-center justify-center rounded-sm bg-primary/10">
+              <LogOut size={17} strokeWidth={1.3} />
             </div>
             <div className="mt-4 text-center">
               <h2 className="text-sm font-medium text-on-surface">Log out</h2>

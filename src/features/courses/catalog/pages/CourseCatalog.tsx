@@ -118,7 +118,7 @@ export default function CourseCatalogPage() {
               Next
             </button>
           </div>
-          <p className="text-on-surface-variant text-xs font-medium">
+          <p className="text-on-surface-variant text-xs font-light">
             Showing {isLoading ? "..." : courses.length} of {total} courses available
           </p>
         </div>

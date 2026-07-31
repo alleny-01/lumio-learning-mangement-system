@@ -34,7 +34,7 @@ export function ProfileSection({
     <section className="rounded-[22px] border border-border/30 bg-surface-container-lowest px-5 py-5 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.25)] sm:px-6 sm:py-6">
       <div className="flex flex-col gap-5 border-b border-border/30 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-[15px] font-semibold text-on-background">
+          <h2 className="text-[15px] font-medium text-on-background">
             Profile
           </h2>
           <p className="mt-1 max-w-2xl text-[11px] font-light leading-5 text-on-surface-variant">

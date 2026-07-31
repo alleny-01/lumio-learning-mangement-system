@@ -9,7 +9,7 @@ export function LanguageSection({ language }: LanguageSectionProps) {
     <section className="rounded-[22px] border border-border/30 bg-surface-container-lowest px-5 py-5 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.25)] sm:px-6 sm:py-6">
       <div className="flex items-center gap-2 border-b border-border/30 pb-4">
         <Globe className="size-4 text-primary" />
-        <h2 className="text-[15px] font-semibold text-on-background">
+        <h2 className="text-[15px] font-settings text-on-background">
           Language
         </h2>
       </div>
@@ -20,7 +20,6 @@ export function LanguageSection({ language }: LanguageSectionProps) {
           </span>
           <select
             value={language}
-            disabled
             className="h-10 w-full rounded-xl border border-border/40 bg-surface px-3 text-[13px] text-on-background outline-none"
           >
             <option value="en">English</option>

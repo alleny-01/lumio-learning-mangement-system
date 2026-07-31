@@ -7,7 +7,7 @@ const COLLAPSED_WIDTH = "64px";
 const EXPANDED_WIDTH = "256px";
 
 function AuthenticatedLayout(): React.JSX.Element {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const sidebarWidth = isCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH;
 

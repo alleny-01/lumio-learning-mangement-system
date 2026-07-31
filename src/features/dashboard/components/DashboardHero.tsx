@@ -12,7 +12,7 @@ export function DashboardHero({
   quote,
 }: DashboardHeroProps): React.JSX.Element {
   return (
-    <section className="relative overflow-hidden rounded-sm bg-on-surface px-5 py-6 text-white shadow-[0_16px_40px_-20px_rgba(68,56,190,0.7)] sm:px-6 sm:py-5">
+    <section className="relative overflow-hidden rounded-sm  bg-on-surface px-5 py-6 text-white shadow-[0_16px_40px_-20px_rgba(68,56,190,0.7)] sm:px-6 sm:py-5">
       {/* Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Gradient */}
@@ -40,11 +40,11 @@ export function DashboardHero({
       <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         {/* Welcome */}
         <div className="max-w-2xl">
-          <h1 className="text-[18px] font-normal tracking-[-0.02em] sm:text-[20px]">
-            Welcome back, {firstName}
+          <h1 className="text-[15px] font-light mb-10 tracking-[-0.02em] sm:text-[18px]">
+            Welcome back, {firstName} 👋
           </h1>
 
-          <p className="mt-2 text-[12px] leading-6 tracking-wide text-white/80 sm:text-[13px]">
+          <p className="mt-2 text-[10px] leading-6 font-light tracking-wider text-white/80 ">
             You logged{" "}
             <span className="font-medium text-white">
               {weeklyStudyHours} study hours
@@ -55,7 +55,7 @@ export function DashboardHero({
         </div>
 
         {/* Quote of the Day */}
-        <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+        <div className="w-full max-w-sm rounded-md border border-white/10 bg-white/5 p-4 backdrop-blur-md">
           <div className="mb-3 flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
               <svg
@@ -68,16 +68,16 @@ export function DashboardHero({
               </svg>
             </div>
 
-            <span className="text-[11px] font-medium uppercase tracking-[0.25em] text-white/60">
+            <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-white/60">
               Quote of the Day
             </span>
           </div>
 
-          <p className="text-[13px] leading-6 text-white/90">
+          <p className="text-[10px] font-light leading-6 text-white/90">
             &quot;{quote.content}&quot;
           </p>
 
-          <p className="mt-3 text-[11px] text-white/50">
+          <p className="mt-3 text-[10px] text-white/50">
             - {quote.author}
           </p>
         </div>

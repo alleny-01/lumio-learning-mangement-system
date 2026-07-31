@@ -74,7 +74,7 @@ const workflowSteps = [
 const previewCourses = [
   { title: "React Foundations", progress: 72, accent: "bg-primary" },
   { title: "Design Systems", progress: 48, accent: "bg-secondary" },
-  { title: "Supabase LMS Data", progress: 86, accent: "bg-tertiary" },
+  { title: "Supabase LMS Data", progress: 86, accent: "bg-tertiary-fixed" },
 ];
 
 const heroStats = [
@@ -99,9 +99,10 @@ function LandingPage() {
           aria-label="Primary navigation"
         >
           <a href="#" className="flex items-center gap-2 text-on-background">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-on-background text-[13px] font-semibold text-white">
+            {/* <span className="flex size-8 items-center justify-center rounded-lg bg-on-background text-[13px] font-semibold text-white">
               L
-            </span>
+            </span> */}
+            <img src="/favicon.ico" alt="Lumio logo" className="h-8 w-8" />
             <span className="text-[18px] font-semibold">Lumio</span>
           </a>
 
@@ -209,7 +210,7 @@ function LandingPage() {
                 variants={fadeUp}
                 className="mt-6 max-w-xl text-[15px] font-light leading-7 text-on-surface-variant sm:text-[16px]"
               >
-                Lumio is a simplified Udemy-style LMS where instructors publish
+                Lumio is a simplified LMS platform where instructors publish
                 structured courses and students move through lessons, dashboards,
                 and real progress tracking.
               </motion.p>

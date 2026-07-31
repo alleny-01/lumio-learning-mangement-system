@@ -47,46 +47,46 @@ function RingChart({ value, accent }: { value: number; accent: string }) {
   );
 }
 
-function MiniLine({ stat }: { stat: DashboardStat }) {
-  return (
-    <svg
-      className="h-12 w-full max-w-[118px]"
-      viewBox="0 0 136 28"
-      aria-hidden="true"
-    >
-      <path
-        d={linePaths[stat.id]}
-        className="fill-none"
-        stroke={stat.accent}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path
-        d={`${linePaths[stat.id]} L136 28 L0 28 Z`}
-        className={
-          stat.id === "study-time" ? "fill-yellow-100/80" : "fill-sky-100/80"
-        }
-      />
-    </svg>
-  );
-}
+// function MiniLine({ stat }: { stat: DashboardStat }) {
+//   return (
+//     <svg
+//       className="h-12 w-full max-w-[118px]"
+//       viewBox="0 0 136 28"
+//       aria-hidden="true"
+//     >
+//       <path
+//         d={linePaths[stat.id]}
+//         className="fill-none"
+//         stroke={stat.accent}
+//         strokeWidth="1.5"
+//         strokeLinecap="round"
+//       />
+//       <path
+//         d={`${linePaths[stat.id]} L136 28 L0 28 Z`}
+//         className={
+//          "text-black"
+//         }
+//       />
+//     </svg>
+//   );
+// }
 
 function StatIcon({ stat }: { stat: DashboardStat }) {
   if (stat.id === "study-time")
-    return <CalendarRange className="size-4 text-yellow-500" />;
+    return <CalendarRange className="size-4 text-black" />;
   if (stat.id === "avg-grade")
-    return <ChartColumnBig className="size-4 text-sky-500" />;
+    return <ChartColumnBig className="size-4 text-black" />;
   if (stat.id === "modules")
-    return <Layers3 className="size-4 text-cyan-500" />;
-  return <GraduationCap className="size-4 text-violet-500" />;
+    return <Layers3 className="size-4 text-black" />;
+  return <GraduationCap className="size-4 text-black" />;
 }
 
 export function StatsGrid({ stats }: { stats: DashboardStat[] }) {
   return (
     <section>
       <div className="mb-3 mt-5 flex items-center gap-2">
-        <h2 className="text-[14px] font-semibold text-on-surface">
-          STATS
+        <h2 className="text-[13px] text- font-normal">
+          Stats Overview
         </h2>
       </div>
 
@@ -99,17 +99,17 @@ export function StatsGrid({ stats }: { stats: DashboardStat[] }) {
             viewport={{ once: true, margin: "-60px" }}
             whileHover={{ y: -4 }}
             transition={{ duration: 0.25 }}
-            className="rounded-sm border border-border/40 bg-surface-container-lowest p-4 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.35)] transition-shadow hover:shadow-[0_18px_36px_-28px_rgba(53,37,205,0.35)]"
+            className="rounded-sm bg-surface-container-lowest p-4 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.35)] transition-shadow hover:shadow-[0_18px_36px_-28px_rgba(53,37,205,0.35)]"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-surface-container-low">
+                <div className="mb-2 flex h-7 w-7 items-center justify-center">
                   <StatIcon stat={stat} />
                 </div>
-                <p className="text-[10px] font-light text-outline-variant">
+                <p className="text-[10px] whitespace-nowrap font-light">
                   {stat.label}
                 </p>
-                <p className="mt-0.5 text-[15px] font-medium tracking-[-0.02em] text-on-surface">
+                <p className="mt-0.5 text-[12px] font-medium tracking-[-0.02em] text-on-surface">
                   {stat.value}
                 </p>
               </div>
@@ -119,11 +119,8 @@ export function StatsGrid({ stats }: { stats: DashboardStat[] }) {
                   value={stat.progress ?? 0}
                   accent={stat.accent}
                 />
-              ) : (
-                <div className="w-[118px] pt-3">
-                  <MiniLine stat={stat} />
-                </div>
-              )}
+              ) : null
+              }
             </div>
           </motion.article>
         ))}

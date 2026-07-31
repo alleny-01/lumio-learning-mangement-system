@@ -12,28 +12,28 @@ export const dashboardStats: DashboardStat[] = [
     label: "Weekly Study Time",
     value: "8.5 hours",
     chartType: "line",
-    accent: "#f4d94f",
+    accent: "#000",
   },
   {
     id: "avg-grade",
     label: "Avg Grade",
     value: "4.7/5",
     chartType: "line",
-    accent: "#93c5fd",
+    accent: "#000",
   },
   {
     id: "modules",
     label: "Modules",
     value: "12/25 (48%)",
     chartType: "ring",
-    accent: "#67e8f9",
+    accent: "#000",
   },
   {
     id: "courses",
     label: "Courses",
     value: "3/5 (60%)",
     chartType: "ring",
-    accent: "#d8b4fe",
+    accent: "#000",
   },
 ];
 

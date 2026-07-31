@@ -105,10 +105,10 @@ function InstructorCoursesPage(): React.JSX.Element {
     <div className="min-h-screen px-4 py-4 sm:px-6 lg:px-6">
       <header className="mb-5 flex flex-col gap-4 rounded-sm border border-border/40 bg-surface-container-lowest p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-[10px] font-light uppercase tracking-[0.24em] text-primary">
+          <p className="text-[10px] font-light uppercase tracking-[0.24em]">
             Instructor Studio
           </p>
-          <h1 className="mt-2 text-[20px] font-medium text-on-surface">
+          <h1 className="mt-2 text-[20px] font-light text-on-surface">
             Your courses
           </h1>
           <p className="mt-2 max-w-2xl text-[12px] font-light leading-6 text-on-surface-variant">

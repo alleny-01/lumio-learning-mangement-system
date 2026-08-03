@@ -10,7 +10,7 @@ import type {
   Instructor,
 } from "../detail/types/types";
 import { courseChapters } from "@/features/viewer/constants";
-import type { ViewerData, ViewerLesson } from "@/features/viewer/types";
+import type { ResourceItem, ViewerData, ViewerLesson } from "@/features/viewer/types";
 
 const fallbackImage =
   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80";

@@ -1,59 +1,59 @@
-import type { ChapterItem, LessonStep, ResourceItem } from "../types";
-
-export const lessonResources: ResourceItem[] = [
-  { id: "resources", label: "Resources", count: "(3)" },
-  { id: "attachments", label: "Attachments", count: "2" },
-  { id: "notes", label: "Lesson Notes" },
-];
+import type { ChapterItem, LessonStep } from "../types";
 
 export const courseChapters: ChapterItem[] = [
   {
     id: "chapter-1",
-    title: "CHAPTER 01",
+    title: "Foundations",
     lessonsLabel: "4/4 Lessons",
     lessons: [
       {
         id: "foundations",
         title: "Foundations of Lumio",
+        durationMinutes: 14,
         completed: true,
       },
       {
         id: "grid-theory",
         title: "Grid Theory vs Spatiality",
+        durationMinutes: 18,
         completed: true,
       },
     ],
   },
   {
     id: "chapter-2",
-    title: "CHAPTER 02",
+    title: "Visual Language",
     lessonsLabel: "1/4 Lessons",
     lessons: [
       {
         id: "line-rule",
         title: "The No-Line Rule",
+        durationMinutes: 12,
         completed: true,
       },
       {
         id: "tonal-depth",
         title: "Tonal Depth Execution",
+        durationMinutes: 22,
         active: true,
       },
       {
         id: "visual-rhythm",
         title: "Asymmetric Visual Rhythm",
+        durationMinutes: 16,
       },
     ],
   },
   {
     id: "chapter-3",
-    title: "CHAPTER 03",
+    title: "Advanced Techniques",
     lessonsLabel: "Locked",
     locked: true,
     lessons: [
       {
         id: "editorial-canvas",
         title: "The Editorial Canvas",
+        durationMinutes: 20,
         locked: true,
       },
     ],
@@ -80,6 +80,3 @@ export const executionSteps: LessonStep[] = [
       "Reserve shadows only for temporary floating objects like modals.",
   },
 ];
-
-export const instructorQuote =
-  "Remember, it is all about layers. Look like a shadow is there, so the UI feels higher. Focus on the subtle tonal differences between surface and surface-container-low.";

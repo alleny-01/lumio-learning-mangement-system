@@ -1,127 +1,318 @@
-import { Lock, LogOut } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import {
+  ChevronDown,
+  Check,
+  Lock,
+  LogOut,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 import type { ChapterItem } from "../types";
 
 interface ViewerSidebarProps {
   courseTitle: string;
   chapters: ChapterItem[];
   activeLessonId: string;
+  completedLessonIds: Set<string>;
   progressPercent: number;
   completedLessons: number;
   totalLessons: number;
   onLessonSelect: (lessonId: string) => void;
+  isMobileOpen: boolean;
+  onCloseMobile: () => void;
 }
 
 export function ViewerSidebar({
   courseTitle,
   chapters,
   activeLessonId,
+  completedLessonIds,
   progressPercent,
   completedLessons,
   totalLessons,
   onLessonSelect,
-}: ViewerSidebarProps): React.JSX.Element {
-  return (
-    <aside className="flex min-h-screen w-full flex-col bg-black text-inverse-on-surface lg:w-74 lg:shrink-0">
-      <div className="border-b border-white/10 px-4 py-4">
-        <div className="inline-flex items-center gap-2 rounded-sm bg-white/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-inverse-on-surface">
-          <span className="text-[11px] font-bold text-secondary-container">
-            Lumio
-          </span>
-          <span className="rounded-sm bg-white/20 px-1.5 py-0.5 text-[8px] tracking-[0.12em] text-white/90">
-            Scholar
-          </span>
-        </div>
+  isMobileOpen,
+  onCloseMobile,
+}: ViewerSidebarProps) {
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    for (const chapter of chapters) {
+      for (const lesson of chapter.lessons) {
+        if (lesson.id === activeLessonId || lesson.active) {
+          initial.add(chapter.id);
+          break;
+        }
+      }
+    }
+    if (initial.size === 0 && chapters.length > 0) {
+      initial.add(chapters[0].id);
+    }
+    return initial;
+  });
 
-        <div className="mt-4">
-          <h1 className="text-[22px] font-light leading-tight tracking-[-0.03em] text-white">
+  const [isExitModalOpen, setIsExitModalOpen] = useState(false);
+
+  const toggleModule = (moduleId: string) => {
+    setExpandedModules((prev) => {
+      const next = new Set(prev);
+      if (next.has(moduleId)) {
+        next.delete(moduleId);
+      } else {
+        next.add(moduleId);
+      }
+      return next;
+    });
+  };
+
+  const getModuleDuration = (chapter: ChapterItem) => {
+    return chapter.lessons.reduce(
+      (sum, l) => sum + (l.durationMinutes ?? 0),
+      0,
+    );
+  };
+
+  const getModuleCompletedCount = (chapter: ChapterItem) => {
+    return chapter.lessons.filter(
+      (l) => l.completed || completedLessonIds.has(l.id),
+    ).length;
+  };
+
+  return (
+    <>
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-black/35 backdrop-blur-sm transition-opacity duration-200 lg:hidden",
+          isMobileOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0",
+        )}
+        aria-hidden="true"
+        onClick={onCloseMobile}
+      />
+
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-full flex-col border-r border-outline-variant/30 bg-surface-container-lowest shadow-[8px_0_30px_-28px_rgba(15,23,42,0.45)] transition-transform duration-300 ease-out lg:relative lg:w-80 lg:shrink-0 lg:translate-x-0",
+          isMobileOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        <div className="flex h-14 items-center justify-between border-b border-outline-variant/30 px-4">
+          <h1 className="min-w-0 truncate text-[13px] font-medium tracking-wide text-on-surface">
             {courseTitle}
           </h1>
-          <p className="mt-1 text-[10px] font-light text-white/55">
-            Module 4: Spatial Design Systems
-          </p>
+          <button
+            type="button"
+            className="inline-flex size-8 items-center justify-center rounded-sm text-outline transition-colors hover:bg-surface-container hover:text-on-surface lg:hidden"
+            aria-label="Close sidebar"
+            onClick={onCloseMobile}
+          >
+            <X size={17} strokeWidth={1.4} />
+          </button>
         </div>
-      </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-5">
-        {chapters.map((chapter) => (
-          <section key={chapter.id} className="mb-6 last:mb-0">
-            <div className="mb-2 flex items-center justify-between px-1 text-[10px] font-medium uppercase tracking-[0.2em] text-white/45">
-              <span>{chapter.title}</span>
-              <span>{chapter.lessonsLabel}</span>
-            </div>
-
-            <div className="space-y-2">
-              {chapter.lessons.map((lesson) => {
-                const isActive = lesson.id === activeLessonId;
-                const isLocked = Boolean(lesson.locked) || chapter.locked;
-
-                return (
-                  <button
-                    key={lesson.id}
-                    type="button"
-                    disabled={isLocked}
-                    onClick={() => onLessonSelect(lesson.id)}
-                    className={`group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors ${
-                      isActive
-                        ? "bg-primary/20 text-white shadow-[0_10px_20px_-14px_rgba(53,37,205,0.8)]"
-                        : "bg-white/0 text-white/78 hover:bg-white/6"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
-                        isActive ? "bg-secondary-container" : "bg-primary"
-                      }`}
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full bg-inverse-surface" />
-                    </span>
-
-                    <span className="min-w-0 flex-1 text-[12px] leading-tight tracking-[-0.01em]">
-                      {lesson.title}
-                    </span>
-
-                    {isLocked ? (
-                      <Lock className="size-3.5 text-white/30" />
-                    ) : isActive ? (
-                      <span className="h-2 w-2 rounded-full bg-secondary-container shadow-[0_0_0_3px_rgba(76,215,246,0.15)]" />
-                    ) : null}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-      </div>
-
-      <div className="border-t border-white/10 p-4">
-        <div className="rounded-sm bg-primary-container p-4 text-white shadow-[0_14px_30px_-20px_rgba(53,37,205,0.9)]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
-            Current Progress
+        <div className="flex-1 overflow-y-auto px-3 py-4">
+          <p className="mb-3 px-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+            Course Content
           </p>
-          <div className="mt-3 flex items-end justify-between gap-3">
-            <div>
-              <p className="text-[28px] font-medium leading-none">{progressPercent}%</p>
-              <p className="mt-1 text-[10px] font-light text-white/70">
-                {completedLessons}/{totalLessons} Lessons
+
+          <div className="space-y-1">
+            {chapters.map((chapter) => {
+              const isExpanded = expandedModules.has(chapter.id);
+              const moduleDuration = getModuleDuration(chapter);
+              const moduleCompleted = getModuleCompletedCount(chapter);
+              const moduleTotal = chapter.lessons.length;
+              const isModuleLocked = Boolean(chapter.locked);
+
+              return (
+                <div key={chapter.id}>
+                  <button
+                    type="button"
+                    onClick={() => toggleModule(chapter.id)}
+                    className="group flex w-full items-center gap-2 rounded-sm px-3 py-2.5 text-left transition-colors hover:bg-surface-container"
+                  >
+                    <ChevronDown
+                      size={14}
+                      strokeWidth={1.5}
+                      className={cn(
+                        "shrink-0 text-on-surface-variant transition-transform duration-200",
+                        isExpanded ? "rotate-0" : "-rotate-90",
+                      )}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[12px] font-medium text-on-surface">
+                        {chapter.title}
+                      </p>
+                      <p className="mt-0.5 text-[10px] font-light text-on-surface-variant">
+                        {moduleCompleted}/{moduleTotal} lessons
+                        {moduleDuration > 0 && ` · ${moduleDuration} min`}
+                      </p>
+                    </div>
+                    {isModuleLocked && (
+                      <Lock
+                        size={13}
+                        strokeWidth={1.5}
+                        className="shrink-0 text-outline"
+                      />
+                    )}
+                  </button>
+
+                  <div
+                    className={cn(
+                      "grid transition-[grid-template-rows] duration-200 ease-out",
+                      isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+                    )}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="space-y-0.5 pb-1 pl-4 pr-1 pt-1">
+                        {chapter.lessons.map((lesson) => {
+                          const isActive = lesson.id === activeLessonId;
+                          const isCompleted =
+                            lesson.completed ||
+                            completedLessonIds.has(lesson.id);
+                          const isLocked =
+                            Boolean(lesson.locked) || isModuleLocked;
+
+                          return (
+                            <button
+                              key={lesson.id}
+                              type="button"
+                              disabled={isLocked}
+                              onClick={() => {
+                                onLessonSelect(lesson.id);
+                                onCloseMobile();
+                              }}
+                              className={cn(
+                                "group relative flex w-full items-center gap-2.5 rounded-sm px-3 py-2 text-left text-[12px] transition-colors",
+                                isActive
+                                  ? "bg-primary/10 text-primary font-medium"
+                                  : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
+                                isLocked && "opacity-50 cursor-not-allowed",
+                              )}
+                            >
+                              {isActive && (
+                                <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-primary" />
+                              )}
+
+                              <span
+                                className={cn(
+                                  "flex size-5 shrink-0 items-center justify-center rounded-full transition-all",
+                                  isCompleted
+                                    ? "bg-primary text-white"
+                                    : isActive
+                                      ? "border-2 border-primary"
+                                      : "border border-outline-variant",
+                                )}
+                              >
+                                {isCompleted && (
+                                  <Check
+                                    size={11}
+                                    strokeWidth={2.5}
+                                    className="animate-in fade-in zoom-in duration-200"
+                                  />
+                                )}
+                              </span>
+
+                              <span className="min-w-0 flex-1 truncate font-light leading-tight tracking-[-0.01em]">
+                                {lesson.title}
+                              </span>
+
+                              {!isLocked && lesson.durationMinutes && (
+                                <span className="shrink-0 text-[10px] font-light text-on-surface-variant">
+                                  {lesson.durationMinutes}m
+                                </span>
+                              )}
+
+                              {isLocked && (
+                                <Lock
+                                  size={12}
+                                  strokeWidth={1.5}
+                                  className="shrink-0 text-outline"
+                                />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="border-t border-outline-variant/30 p-4 space-y-3">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+                Progress
+              </p>
+              <p className="text-[11px] font-medium text-on-surface">
+                {progressPercent}%
               </p>
             </div>
-            <div className="relative h-16 w-16 shrink-0 rounded-full border-4 border-secondary-container/35">
-              <div className="absolute inset-0 rounded-full border-4 border-secondary-container border-t-transparent border-r-transparent rotate-230" />
+            <div className="h-1.5 overflow-hidden rounded-full bg-surface-container-high">
+              <div
+                className="h-full rounded-full bg-primary transition-[width] duration-500 ease-out"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <p className="mt-1.5 text-[10px] font-light text-on-surface-variant">
+              {completedLessons} of {totalLessons} lessons completed
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsExitModalOpen(true)}
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-sm border border-outline-variant/30 text-[12px] font-light text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
+          >
+            <LogOut size={15} strokeWidth={1.3} />
+            Exit Course
+          </button>
+        </div>
+      </aside>
+
+      {isExitModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-sm border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-sm bg-primary/10">
+              <LogOut size={17} strokeWidth={1.3} className="text-primary" />
+            </div>
+            <div className="mt-4 text-center">
+              <h2 className="text-sm font-medium text-on-surface">
+                Exit Course
+              </h2>
+              <p className="mt-2 text-xs font-light leading-6 text-on-surface-variant">
+                Are you sure you want to exit? Your progress has been saved and
+                you can resume anytime.
+              </p>
+            </div>
+            <div className="mt-5 flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="flex-1"
+                onClick={() => setIsExitModalOpen(false)}
+              >
+                Continue Learning
+              </Button>
+              <Button
+                type="button"
+                size="lg"
+                className="flex-1"
+                onClick={() => {
+                  window.location.href = "/learning";
+                }}
+              >
+                Exit Course
+              </Button>
             </div>
           </div>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15">
-            <div
-              className="h-full rounded-full bg-secondary-container"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
         </div>
-
-        <Link to="/learning" className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-sm border border-white/10 bg-white/5 px-4 py-3 text-[12px] text-white/75 transition-colors hover:bg-white/8">
-          <LogOut className="size-4" />
-          Exit Course
-        </Link>
-      </div>
-    </aside>
+      )}
+    </>
   );
 }

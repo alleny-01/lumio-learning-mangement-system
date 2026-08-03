@@ -1,6 +1,6 @@
-import React from "react";
 import type { CourseDetail } from "../types/types";
-import { PiCheckLight } from "react-icons/pi";
+import { Check } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface CourseOverviewProps {
   course: CourseDetail;
@@ -8,43 +8,53 @@ interface CourseOverviewProps {
 
 export const CourseOverview: React.FC<CourseOverviewProps> = ({ course }) => {
   return (
-    <section className="bg-surface-container-low py-16 sm:py-24 px-4 sm:px-8">
+    <section className="bg-surface-container-low py-12 sm:py-16 px-4 sm:px-8">
       <div className="max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-          <div className="lg:col-span-5">
-            <h2 className="text-xs font-label font-bold text-primary uppercase tracking-[0.2em] mb-4 sm:mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start"
+        >
+          {/* Left Column — Course Description */}
+          <div className="lg:col-span-5 space-y-3">
+            <h2 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
               Course Overview
             </h2>
-            <h3 className="text-2xl sm:text-2xl font-light mb-6 sm:mb-8 leading-snug">
-              The Architectural Mindset for the Modern Designer.
+            <h3 className="text-xl sm:text-xl font-light leading-normal text-on-surface">
+              {course.description}
             </h3>
-            <p className="text-sm text-on-surface-variant leading-relaxed text-xs">
-              {course.overview}
-            </p>
           </div>
 
+          {/* Right Column — What You'll Learn */}
           <div className="lg:col-span-7">
-            <div className="bg-surface-container-lowest p-6 sm:p-10 rounded-sm shadow-sm">
-              <h3 className="text-lg sm:text-xl font-bold mb-6 sm:mb-8 font-light">
+            <div className="rounded-sm bg-surface-container-lowest p-6 sm:p-8 space-y-6">
+              <h3 className="text-lg font-light text-on-surface">
                 What you'll learn
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-x-8 gap-y-4 sm:gap-y-5">
-                {course.learningOutcomes.map((outcome) => (
-                  <div key={outcome.id} className="flex gap-2">
-                    <div className="flex-shrink-0 w-6 h-6  flex items-center justify-center">
-                      <span className="material-symbols-outlined text-[16px] font-bold">
-                        <PiCheckLight size={12} />
-                      </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {course.learningOutcomes.map((outcome, index) => (
+                  <motion.div
+                    key={outcome.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="flex gap-3 items-start"
+                  >
+                    <div className="flex size-5 shrink-0 items-center justify-center text-primary mt-0.5">
+                      <Check className="size-3 stroke-[2.5]" />
                     </div>
-                    <span className="text-on-surface font-extralight text-xs break-all">
+                    <span className="text-[12px] font-light text-on-surface leading-relaxed">
                       {outcome.title}
                     </span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

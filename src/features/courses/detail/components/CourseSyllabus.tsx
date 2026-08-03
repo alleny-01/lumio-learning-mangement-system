@@ -1,95 +1,138 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { ChevronDown, PlayCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { CourseModule } from "../types/types";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CourseSyllabusProps {
   modules: CourseModule[];
 }
 
 export const CourseSyllabus: React.FC<CourseSyllabusProps> = ({ modules }) => {
-  const [expandedModule, setExpandedModule] = useState<string | null>(
-    modules.find((m) => m.isExpanded)?.id || null,
-  );
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    if (modules.length > 0) {
+      initial.add(modules[0].id);
+    }
+    return initial;
+  });
 
   const toggleModule = (moduleId: string) => {
-    setExpandedModule(expandedModule === moduleId ? null : moduleId);
+    setExpandedModules((prev) => {
+      const next = new Set(prev);
+      if (next.has(moduleId)) {
+        next.delete(moduleId);
+      } else {
+        next.add(moduleId);
+      }
+      return next;
+    });
   };
 
   return (
-    <section id="course-syllabus" className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-8 w-full">
-      <div className="mb-12 sm:mb-16">
-        <h2 className="text-xs font-label font-bold text-primary uppercase tracking-[0.2em] mb-3 sm:mb-4">
+    <motion.section
+      id="course-syllabus"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-8 w-full space-y-6"
+    >
+      <div>
+        <h2 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary mb-2">
           Curriculum
         </h2>
-        <h3 className="text-2xl font-extralight">Master the System</h3>
+        <h3 className="text-xl sm:text-2xl font-light text-on-surface">
+          Course Modules & Lessons
+        </h3>
       </div>
 
-      <div className="space-y-4">
-        {modules.map((module) => {
-          const isExpanded = expandedModule === module.id;
-          const isHighlighted = isExpanded;
+      <div className="space-y-3">
+        {modules.map((module, index) => {
+          const isExpanded = expandedModules.has(module.id);
+          const lessonItems = module.lessonItems ?? [];
 
           return (
-            <div
+            <motion.div
               key={module.id}
-              className={`group rounded-sm overflow-hidden transition-all ${
-                isHighlighted
-                  ? "bg-surface-container-lowest border border-primary/20 shadow-lg shadow-primary/5"
-                  : "bg-surface"
-              }`}
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.35, delay: index * 0.08 }}
+              className="rounded-sm  bg-surface-container-lowest overflow-hidden transition-all shadow-sm"
             >
-              <div
+              {/* Module Header Button */}
+              <button
+                type="button"
                 onClick={() => toggleModule(module.id)}
-                className={`flex items-center justify-between p-6 sm:p-8 cursor-pointer transition-colors ${
-                  isHighlighted
-                    ? "bg-surface-container-low"
-                    : "bg-surface-container-low hover:bg-surface-container-high"
-                }`}
+                className="flex w-full items-center justify-between p-5 text-left transition-colors hover:bg-surface-container-low"
               >
-                <div className="flex items-center gap-4 sm:gap-6 flex-1">
-                  <span
-                    className={`text-md font-extralight ${
-                      isHighlighted ? "text-primary" : "text-outline"
-                    }`}
-                  >
+                <div className="flex items-center gap-4 min-w-0 flex-1">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-sm bg-primary/10 text-[12px] font-semibold text-primary">
                     {String(module.number).padStart(2, "0")}
                   </span>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-extralight truncate">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-[14px] font-light text-on-surface truncate">
                       {module.title}
                     </h4>
-                    <p className="text-xs font-extralight  text-on-surface-variant">
+                    <p className="mt-0.5 text-[11px] font-light text-on-surface-variant">
                       {module.lessons} Lessons • {module.duration}
                     </p>
                   </div>
                 </div>
-                <span className="material-symbols-outlined text-primary flex-shrink-0 ml-4">
-                  {isExpanded ? "expand_less" : "expand_more"}
-                </span>
-              </div>
 
-              {isExpanded && module.lessonItems && (
-                <div className="p-6 sm:p-8 space-y-4 sm:space-y-6 border-t border-outline-variant/20">
-                  {module.lessonItems.map((lesson) => (
-                    <div
-                      key={lesson.id}
-                      className="flex items-center justify-between group/item cursor-pointer hover:text-primary transition-colors"
-                    >
-                      <div className="flex items-center gap-4 flex-1 min-w-0">
-                        <span className="font-extralight text-on-surface group-hover/item:text-primary transition-colors text-sm truncate">
-                          {lesson.title}
-                        </span>
-                      </div>
-                      <span className="text-xs text-on-surface-variant font-label ml-4 flex-shrink-0">
-                        {lesson.duration}
-                      </span>
+                <ChevronDown
+                  size={16}
+                  strokeWidth={1.5}
+                  className={cn(
+                    "shrink-0 text-on-surface-variant transition-transform duration-200",
+                    isExpanded ? "rotate-180" : "rotate-0",
+                  )}
+                />
+              </button>
+
+              {/* Animated Collapsible Lesson Info List */}
+              <AnimatePresence initial={false}>
+                {isExpanded && (
+                  <motion.div
+                    key="content"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="border-t border-outline-variant/20 p-4 sm:p-5 space-y-2 bg-surface-container-low/40">
+                      {lessonItems.length > 0 ? (
+                        lessonItems.map((lesson) => (
+                          <div
+                            key={lesson.id}
+                            className="flex items-center justify-between gap-3 rounded-sm p-2 text-[12px] transition-colors hover:bg-surface-container-lowest"
+                          >
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <PlayCircle className="size-4 shrink-0 text-primary" />
+                              <span className="truncate font-light text-on-surface">
+                                {lesson.title}
+                              </span>
+                            </div>
+                            <span className="shrink-0 text-[11px] font-light text-on-surface-variant">
+                              {lesson.duration}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-[12px] font-light italic text-on-surface-variant">
+                          {module.lessons} lessons included in this module.
+                        </p>
+                      )}
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           );
         })}
       </div>
-    </section>
+    </motion.section>
   );
 };

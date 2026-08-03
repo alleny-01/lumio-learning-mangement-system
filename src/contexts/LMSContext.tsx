@@ -46,6 +46,10 @@ function LMSProvider({ children }: PropsWithChildren) {
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
+    document.documentElement.classList.remove("dark");
+  }, []);
+
+  useEffect(() => {
     let isMounted = true;
 
     async function getSession() {
@@ -83,7 +87,6 @@ function LMSProvider({ children }: PropsWithChildren) {
     };
   }, [navigate]);
 
-  // show toast on auth error
   useEffect(() => {
     if (authError) {
       showToast({
@@ -94,8 +97,6 @@ function LMSProvider({ children }: PropsWithChildren) {
     }
   }, [authError]);
 
-
-  // Resend verification email
   const resendVerification = async (
     email?: string,
   ): Promise<ResendVerificationResult> => {
@@ -113,7 +114,14 @@ function LMSProvider({ children }: PropsWithChildren) {
 
   return (
     <LMSContext.Provider
-      value={{ isAuthLoading, isLoading, setIsLoading, session, setSession, authError, resendVerification,
+      value={{
+        isAuthLoading,
+        isLoading,
+        setIsLoading,
+        session,
+        setSession,
+        authError,
+        resendVerification,
         setAuthError,
       }}
     >

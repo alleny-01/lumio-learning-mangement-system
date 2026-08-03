@@ -11,12 +11,13 @@ export function signInWithPassword(email: string, password: string) {
   });
 }
 
-export function signUpWithPassword(email: string, password: string) {
+export function signUpWithPassword(email: string, password: string, metadata?: Record<string, string>) {
   return supabase.auth.signUp({
     email: email.toLowerCase(),
     password,
     options: {
       emailRedirectTo: `${window.location.origin}/email-confirmation`,
+      data: metadata,
     },
   });
 }

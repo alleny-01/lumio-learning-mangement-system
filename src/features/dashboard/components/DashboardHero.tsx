@@ -1,87 +1,69 @@
-import type { DashboardQuote } from "../types";
+import { motion } from "framer-motion";
 
 interface DashboardHeroProps {
   firstName: string;
   weeklyStudyHours: number;
-  quote: DashboardQuote;
 }
 
 export function DashboardHero({
   firstName,
   weeklyStudyHours,
-  quote,
 }: DashboardHeroProps): React.JSX.Element {
   return (
-    <section className="relative overflow-hidden rounded-sm  bg-on-surface px-5 py-6 text-white shadow-[0_16px_40px_-20px_rgba(68,56,190,0.7)] sm:px-6 sm:py-5">
-      {/* Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-primary/10" />
-
-        {/* Glows */}
-        <div className="absolute -left-16 -top-20 h-72 w-72 rounded-full bg-primary/20 blur-[90px]" />
-        <div className="absolute -right-20 top-0 h-64 w-64 rounded-full bg-violet-400/20 blur-[90px]" />
-        <div className="absolute bottom-0 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-indigo-400/10 blur-[100px]" />
-
-        {/* Grid */}
+    <motion.section
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="relative overflow-hidden rounded-sm bg-surface-container-lowest px-5 py-6 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.12)] sm:px-6 sm:py-6"
+    >
+      {/* Decorative Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Subtle grid pattern */}
         <div
-          className="absolute inset-0 opacity-[0.05]"
+          className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: `
-          linear-gradient(to right, rgba(255,255,255,.18) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(255,255,255,.18) 1px, transparent 1px)
-        `,
-            backgroundSize: "42px 42px",
+              linear-gradient(to right, rgba(15,23,42,0.2) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(15,23,42,0.2) 1px, transparent 1px)
+            `,
+            backgroundSize: "32px 32px",
           }}
         />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-        {/* Welcome */}
-        <div className="max-w-2xl">
-          <h1 className="text-[15px] font-light mb-10 tracking-[-0.02em] sm:text-[18px]">
+      <div className="relative z-10 flex flex-col gap-3">
+        {/* Welcome Text */}
+        <motion.div
+          className="max-w-2xl"
+          initial={{ opacity: 0, x: -14 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.45, delay: 0.12, ease: "easeOut" }}
+        >
+          <motion.h1
+            className="text-[14px] font-normal tracking-tight text-on-surface sm:text-[16px]"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.2 }}
+          >
             Welcome back, {firstName} 👋
-          </h1>
+          </motion.h1>
 
-          <p className="mt-2 text-[10px] leading-6 font-light tracking-wider text-white/80 ">
+          <motion.p
+            className="mt-5 text-[10px] font-light leading-relaxed text-on-surface-variant"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.3 }}
+          >
             You logged{" "}
-            <span className="font-medium text-white">
+            <span className="inline-flex items-center rounded-sm bg-primary/10 px-2 py-0.5 font-medium text-primary">
               {weeklyStudyHours} study hours
             </span>{" "}
             this week. Keep showing up and your progress graph will do the
             bragging for you.
-          </p>
-        </div>
-
-        {/* Quote of the Day */}
-        <div className="w-full max-w-sm rounded-md border border-white/10 bg-white/5 p-4 backdrop-blur-md">
-          <div className="mb-3 flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-primary-300"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M9.5 11H6.75A2.75 2.75 0 019.5 8.25V6A4 4 0 005.5 10v5a3 3 0 003 3h1a2 2 0 002-2v-3a2 2 0 00-2-2zm8 0h-2.75A2.75 2.75 0 0117.5 8.25V6A4 4 0 0013.5 10v5a3 3 0 003 3h1a2 2 0 002-2v-3a2 2 0 00-2-2z" />
-              </svg>
-            </div>
-
-            <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-white/60">
-              Quote of the Day
-            </span>
-          </div>
-
-          <p className="text-[10px] font-light leading-6 text-white/90">
-            &quot;{quote.content}&quot;
-          </p>
-
-          <p className="mt-3 text-[10px] text-white/50">
-            - {quote.author}
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }

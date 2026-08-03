@@ -14,30 +14,6 @@ import { CourseBuilderDialog } from "../components/CourseBuilderDialog";
 import type { CourseBuilderDraft, InstructorCourse } from "../types";
 import { draftFromCourse } from "../utils";
 
-function fallbackCourses(): InstructorCourse[] {
-  return [
-    {
-      id: "demo-authored",
-      instructor_id: "demo",
-      title: "Draft: Product Design Foundations",
-      slug: "product-design-foundations",
-      description: "A draft course showing how authored courses will appear.",
-      thumbnail_url:
-        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
-      category: "Design",
-      difficulty: "beginner",
-      preview_video_url: null,
-      status: "draft",
-      duration_minutes: 120,
-      rating: 0,
-      enrolled_count: 0,
-      published_at: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-  ];
-}
-
 function statusClass(status: Tables<"courses">["status"]) {
   if (status === "published") return "bg-secondary-container text-on-secondary-container";
   if (status === "saved") return "bg-primary-fixed text-on-primary-fixed";
@@ -66,7 +42,7 @@ function InstructorCoursesPage(): React.JSX.Element {
           ? error.message
           : "Unable to load your authored courses.",
       );
-      setCourses(fallbackCourses());
+      setCourses([]);
     } finally {
       setIsLoading(false);
     }
@@ -155,9 +131,9 @@ function InstructorCoursesPage(): React.JSX.Element {
                 viewport={{ once: true, margin: "-60px" }}
                 whileHover={{ y: -5 }}
                 transition={{ duration: 0.25 }}
-                className="rounded-sm border border-border/40 bg-surface-container-lowest p-4 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.35)] transition-shadow hover:shadow-[0_18px_36px_-28px_rgba(53,37,205,0.35)]"
+                className="rounded-sm border border-border/40 bg-surface-container-lowest shadow-[0_8px_20px_-18px_rgba(15,23,42,0.35)] transition-shadow hover:shadow-[0_18px_36px_-28px_rgba(53,37,205,0.35)]"
               >
-                <div className="aspect-[4/3] overflow-hidden rounded-sm bg-surface-container-low">
+                <div className="aspect-[4/3] overflow-hidden rounded-tl-sm rounded-tr-sm bg-surface-container-low">
                   {course.thumbnail_url ? (
                     <img
                       src={course.thumbnail_url}
@@ -170,7 +146,7 @@ function InstructorCoursesPage(): React.JSX.Element {
                     </div>
                   )}
                 </div>
-                <div className="mt-4 space-y-3">
+                <div className="mt-4 p-4 space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h2 className="text-sm font-medium text-on-surface">
@@ -191,7 +167,7 @@ function InstructorCoursesPage(): React.JSX.Element {
                     <span className="capitalize">{course.difficulty}</span>
                     <span>{course.duration_minutes} min</span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
                     <Button
                       type="button"
                       variant="outline"
@@ -227,6 +203,7 @@ function InstructorCoursesPage(): React.JSX.Element {
       {isBuilderOpen && session?.user.id && (
         <CourseBuilderDialog
           instructorId={session.user.id}
+          instructorEmail={session.user.email}
           initialDraft={builderDraft ?? undefined}
           onClose={() => setIsBuilderOpen(false)}
           onSaved={() => {

@@ -105,7 +105,10 @@ export function deleteCourse(courseId: string) {
 }
 
 export function upsertCourseModules(modules: Inserts<"course_modules">[]) {
-  return supabase.from("course_modules").upsert(modules).select("*");
+  return supabase
+    .from("course_modules")
+    .upsert(modules, { onConflict: "course_id,sort_order" })
+    .select("*");
 }
 
 export function deleteCourseModule(moduleId: string) {
@@ -114,7 +117,10 @@ export function deleteCourseModule(moduleId: string) {
 
 export function upsertLessons(courseId: string, lessons: LessonDraftInput[]) {
   const rows = lessons.map((lesson) => ({ ...lesson, course_id: courseId }));
-  return supabase.from("lessons").upsert(rows).select("*");
+  return supabase
+    .from("lessons")
+    .upsert(rows, { onConflict: "module_id,sort_order" })
+    .select("*");
 }
 
 export function deleteLesson(lessonId: string) {

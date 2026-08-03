@@ -1,16 +1,13 @@
-import { ChevronRight } from "lucide-react";
 import type { ViewerLesson } from "../types";
 
 interface ViewerHeaderProps {
   lesson: ViewerLesson;
-  resourceCount: number;
   onMarkComplete: () => void;
   isCompleting: boolean;
 }
 
 export function ViewerHeader({
   lesson,
-  resourceCount,
   onMarkComplete,
   isCompleting,
 }: ViewerHeaderProps) {
@@ -30,10 +27,6 @@ export function ViewerHeader({
       </div>
 
       <div className="flex items-center gap-3 self-start lg:self-auto">
-        <button className="inline-flex items-center gap-1 text-[11px] font-medium text-primary transition-colors hover:text-primary/80">
-          Resources ({resourceCount})
-          <ChevronRight className="size-3.5" />
-        </button>
         <button
           type="button"
           onClick={onMarkComplete}

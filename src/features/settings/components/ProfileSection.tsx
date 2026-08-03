@@ -31,21 +31,22 @@ export function ProfileSection({
     "L";
 
   return (
-    <section className="rounded-[22px] border border-border/30 bg-surface-container-lowest px-5 py-5 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.25)] sm:px-6 sm:py-6">
+    <section className="min-w-0 rounded-sm border border-border/30 bg-surface-container-lowest px-4 py-5 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.25)] sm:px-6 sm:py-6">
       <div className="flex flex-col gap-5 border-b border-border/30 pb-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-[15px] font-medium text-on-background">
+        <div className="min-w-0">
+          <h2 className="text-[15px] font-light text-on-background">
             Profile
           </h2>
           <p className="mt-1 max-w-2xl text-[11px] font-light leading-5 text-on-surface-variant">
             Keep your public Lumio identity current for students and instructors.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
           <Button
             type="button"
             variant="outline"
             size="lg"
+            className="w-full sm:w-auto"
             onClick={onDiscard}
             disabled={!isDirty || isSaving}
           >
@@ -55,6 +56,7 @@ export function ProfileSection({
           <Button
             type="button"
             size="lg"
+            className="w-full sm:w-auto"
             onClick={onSave}
             disabled={!isDirty || isSaving}
           >
@@ -64,9 +66,9 @@ export function ProfileSection({
         </div>
       </div>
 
-      <div className="grid gap-6 py-6 lg:grid-cols-[220px_minmax(0,1fr)]">
-        <div className="space-y-4">
-          <div className="flex items-center gap-4 lg:block lg:space-y-3">
+      <div className="grid min-w-0 gap-6 py-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <div className="min-w-0 space-y-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center lg:block lg:space-y-3">
             <div className="flex size-22 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/40 bg-primary/10 text-[24px] font-medium text-primary">
               {form.avatarUrl ? (
                 <img
@@ -78,7 +80,7 @@ export function ProfileSection({
                 initials
               )}
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[12px] font-medium text-on-background">
                 Profile photo
               </p>
@@ -88,7 +90,7 @@ export function ProfileSection({
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             <label className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md bg-primary px-3 text-[12px] font-medium text-primary-foreground transition-colors hover:bg-primary/80">
               <Upload className="size-4" />
               {isUploading ? "Uploading..." : "Upload"}
@@ -108,6 +110,7 @@ export function ProfileSection({
               type="button"
               variant="outline"
               size="lg"
+              className="w-full sm:w-auto"
               onClick={onAvatarRemove}
               disabled={!form.avatarUrl || isUploading}
             >
@@ -117,30 +120,30 @@ export function ProfileSection({
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="space-y-1.5">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+          <label className="space-y-1.5 min-w-0">
             <span className="text-[11px] font-medium text-on-surface-variant">
               First name
             </span>
             <input
               value={form.firstName}
               onChange={(event) => onChange({ firstName: event.target.value })}
-              className="h-10 w-full rounded-xl border border-border/40 bg-surface px-3 text-[13px] text-on-background outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
+              className="h-10 w-full min-w-0 rounded-xl border border-border/40 bg-surface px-3 text-[13px] text-on-background outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
               placeholder="First name"
             />
           </label>
-          <label className="space-y-1.5">
+          <label className="space-y-1.5 min-w-0">
             <span className="text-[11px] font-medium text-on-surface-variant">
               Last name
             </span>
             <input
               value={form.lastName}
               onChange={(event) => onChange({ lastName: event.target.value })}
-              className="h-10 w-full rounded-xl border border-border/40 bg-surface px-3 text-[13px] text-on-background outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
+              className="h-10 w-full min-w-0 rounded-xl border border-border/40 bg-surface px-3 text-[13px] text-on-background outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
               placeholder="Last name"
             />
           </label>
-          <label className="space-y-1.5">
+          <label className="space-y-1.5 min-w-0">
             <span className="text-[11px] font-medium text-on-surface-variant">
               Date of birth
             </span>
@@ -150,7 +153,7 @@ export function ProfileSection({
               onChange={(event) =>
                 onChange({ dateOfBirth: event.target.value })
               }
-              className="h-10 w-full rounded-xl border border-border/40 bg-surface px-3 text-[13px] text-on-background outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
+              className="h-10 w-full min-w-0 max-w-full rounded-xl border border-border/40 bg-surface px-3 text-[13px] text-on-background outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/15 [color-scheme:light] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-70"
             />
           </label>
           <label className="space-y-1.5 sm:col-span-2">
@@ -171,10 +174,12 @@ export function ProfileSection({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 rounded-2xl bg-surface-container-low px-4 py-3 text-[11px] text-on-surface-variant">
+      <div className="flex min-w-0 items-start gap-2 rounded-sm bg-surface-container-low px-4 py-3 text-[11px] leading-5 text-on-surface-variant sm:items-center">
         <Camera className="size-3.5 shrink-0 text-primary" />
-        Avatar files are stored in the Supabase avatars bucket and the public URL
-        is saved to your profile.
+        <span>
+          Avatar files are stored in the Supabase avatars bucket and the public
+          URL is saved to your profile.
+        </span>
       </div>
     </section>
   );

@@ -1,6 +1,9 @@
 export { DashboardHero } from "./DashboardHero";
+export { DailyQuoteModal } from "./DailyQuoteModal";
+export { LearningStreakModal } from "./LearningStreakModal";
 export { StatsGrid } from "./StatsGrid";
 export { CoursesSection } from "./CoursesSection";
-export { ScheduleSection } from "./ScheduleSection";
-export { RightPanel } from "./RightPanel";
+export { CreateCoursePrompt } from "./CreateCoursePrompt";
+export { ContinueLearningCard } from "./ContinueLearningCard";
+export { WeeklyGoalCard } from "./WeeklyGoalCard";
 export { DashboardShell } from "./DashboardShell";

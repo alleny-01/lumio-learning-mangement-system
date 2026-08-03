@@ -33,7 +33,7 @@ export function AccountSecuritySection({
   }
 
   return (
-    <section className="rounded-[22px] border border-border/30 bg-surface-container-lowest px-5 py-5 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.25)] sm:px-6 sm:py-6">
+    <section className="min-w-0 rounded-sm border border-border/30 bg-surface-container-lowest px-4 py-5 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.25)] sm:px-6 sm:py-6">
       <div className="flex items-center gap-2 border-b border-border/30 pb-4">
         <ShieldCheck className="size-4 text-primary" />
         <h2 className="text-[15px] font-light text-on-background">
@@ -114,7 +114,7 @@ export function AccountSecuritySection({
         </div>
 
         <div className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2 text-[13px] font-medium text-error">
               <Trash2 className="size-4" />
               Delete account
@@ -128,6 +128,7 @@ export function AccountSecuritySection({
             type="button"
             variant="destructive"
             size="lg"
+            className="w-full sm:w-auto"
             onClick={() => setShowDeleteConfirm(true)}
           >
             Delete
@@ -142,7 +143,7 @@ export function AccountSecuritySection({
           aria-labelledby="delete-account-title"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-4"
         >
-          <div className="w-full max-w-md rounded-[22px] border border-border/40 bg-surface-container-lowest p-5 shadow-xl">
+          <div className="w-full max-w-md rounded-sm border border-border/40 bg-surface-container-lowest p-5 shadow-xl">
             <h3
               id="delete-account-title"
               className="text-[15px] font-semibold text-on-background"
@@ -154,11 +155,12 @@ export function AccountSecuritySection({
               permanently remove account data. This action will request that
               flow and show the current backend status.
             </p>
-            <div className="mt-5 flex justify-end gap-2">
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 size="lg"
+                className="w-full sm:w-auto"
                 onClick={() => setShowDeleteConfirm(false)}
               >
                 Cancel
@@ -167,6 +169,7 @@ export function AccountSecuritySection({
                 type="button"
                 variant="destructive"
                 size="lg"
+                className="w-full sm:w-auto"
                 onClick={async () => {
                   await onDeleteAccount();
                   setShowDeleteConfirm(false);

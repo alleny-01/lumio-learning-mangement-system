@@ -8,8 +8,14 @@ import {
   upsertCourseModules,
   upsertLessons,
 } from "@/shared/api/courses";
-import { createResource } from "@/shared/api/resources";
-import type { CourseStatus } from "@/shared/types/database";
+import {
+  createResource,
+  getPublicStorageUrl,
+  uploadCourseThumbnail,
+  uploadResourceFile,
+} from "@/shared/api/resources";
+import { getProfile, upsertProfile } from "@/shared/api/profiles";
+import type { CourseStatus, ResourceKind } from "@/shared/types/database";
 import type { CourseBuilderDraft } from "../types";
 import {
   courseCategories,
@@ -24,6 +30,7 @@ import {
 
 interface CourseBuilderDialogProps {
   instructorId: string;
+  instructorEmail?: string;
   initialDraft?: CourseBuilderDraft;
   onClose: () => void;
   onSaved: () => void;
@@ -33,8 +40,98 @@ function fieldClass() {
   return "w-full rounded-sm bg-surface-container-low px-3 py-2 text-xs outline-none ring-1 ring-transparent transition focus:bg-surface-container-lowest focus:ring-primary/20";
 }
 
+const characterLimits = {
+  courseTitle: 80,
+  courseDescription: 600,
+  url: 2048,
+  moduleTitle: 90,
+  lessonTitle: 100,
+  lessonDescription: 500,
+  coreConcept: 240,
+  resourceTitle: 80,
+  outcome: 120,
+} as const;
+
+const acceptedThumbnailTypes = "image/png,image/jpeg,image/webp";
+const acceptedResourceTypes = [
+  ".pdf",
+  ".doc",
+  ".docx",
+  ".md",
+  ".txt",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "text/markdown",
+  "text/plain",
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+].join(",");
+const maxThumbnailSize = 5 * 1024 * 1024;
+const maxResourceSize = 10 * 1024 * 1024;
+
+function CharacterCount({
+  value,
+  max,
+}: {
+  value: string;
+  max: number;
+}): React.JSX.Element {
+  return (
+    <span className="block pt-1 text-right text-[10px] font-light text-on-surface-variant">
+      {value.length}/{max}
+    </span>
+  );
+}
+
+function storageSafeName(name: string) {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9.]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function resourceKindFromFile(file: File): ResourceKind {
+  return file.type.startsWith("image/") ? "image" : "document";
+}
+
+function isAllowedResourceFile(file: File) {
+  const isAllowedDocument =
+    [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "text/markdown",
+      "text/plain",
+    ].includes(file.type) || /\.(pdf|doc|docx|md|txt)$/i.test(file.name);
+  const isAllowedImage =
+    ["image/png", "image/jpeg", "image/webp"].includes(file.type) &&
+    file.size <= maxThumbnailSize;
+
+  return file.size <= maxResourceSize && (isAllowedDocument || isAllowedImage);
+}
+
+async function ensureInstructorProfile(instructorId: string, email?: string) {
+  const profileResult = await getProfile(instructorId);
+  if (profileResult.data) return;
+  if (!email) throw profileResult.error ?? new Error("Instructor profile is missing.");
+
+  const createProfileResult = await upsertProfile({
+    id: instructorId,
+    email,
+  });
+  if (createProfileResult.error) throw createProfileResult.error;
+}
+
 export function CourseBuilderDialog({
   instructorId,
+  instructorEmail,
   initialDraft,
   onClose,
   onSaved,
@@ -44,26 +141,85 @@ export function CourseBuilderDialog({
   );
   const [step, setStep] = useState<"info" | "content">("info");
   const [isSaving, setIsSaving] = useState(false);
+  const [savingStatus, setSavingStatus] = useState<CourseStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-  const isValid = useMemo(() => {
-    return (
-      draft.title.trim().length > 2 &&
-      draft.description.trim().length > 10 &&
-      isValidYoutubeUrl(draft.previewVideoUrl) &&
-      draft.modules.every((module) =>
-        module.lessons.every((lesson) => isValidYoutubeUrl(lesson.youtubeUrl)),
-      )
+  const validationMessage = useMemo(() => {
+    if (!isValidYoutubeUrl(draft.previewVideoUrl)) {
+      return "Preview video must be a valid YouTube URL.";
+    }
+
+    const hasInvalidLessonUrl = draft.modules.some((module) =>
+      module.lessons.some((lesson) => !isValidYoutubeUrl(lesson.youtubeUrl)),
     );
+
+    if (hasInvalidLessonUrl) {
+      return "Lesson videos must use valid YouTube URLs.";
+    }
+
+    return null;
   }, [draft]);
 
+  const getValidationError = (status: CourseStatus) => {
+    if (validationMessage) return validationMessage;
+
+    if (status === "draft") return null;
+
+    if (draft.title.trim().length < 3) {
+      return "Add a course title before saving.";
+    }
+
+    if (draft.description.trim().length < 10) {
+      return "Add a useful course description before saving.";
+    }
+
+    if (status === "published") {
+      const hasLessonVideo = draft.modules.some((module) =>
+        module.lessons.some((lesson) => lesson.youtubeUrl.trim().length > 0),
+      );
+
+      if (!hasLessonVideo) {
+        return "Add at least one YouTube lesson video before publishing.";
+      }
+    }
+
+    return null;
+  };
+
+  const formatSaveError = (saveError: unknown) => {
+    if (saveError instanceof Error) return saveError.message;
+    if (
+      typeof saveError === "object" &&
+      saveError !== null &&
+      "message" in saveError &&
+      typeof saveError.message === "string"
+    ) {
+      return saveError.message;
+    }
+    return "Unable to save this course.";
+  };
+
   const saveDraft = async (status: CourseStatus = draft.status) => {
-    if (!isValid || isSaving) return;
+    const nextError = getValidationError(status);
+    if (nextError) {
+      setError(nextError);
+      return;
+    }
+
+    if (isSaving) return;
     setIsSaving(true);
+    setSavingStatus(status);
     setError(null);
 
     try {
+      await ensureInstructorProfile(instructorId, instructorEmail);
+
+      const courseTitle = draft.title.trim() || "Untitled course";
+      const courseSlug =
+        draft.id && draft.slug
+          ? draft.slug
+          : `${slugify(courseTitle) || "course"}-${Date.now()}`;
       const duration = draft.modules.reduce(
         (sum, module) =>
           sum +
@@ -73,10 +229,15 @@ export function CourseBuilderDialog({
           ),
         0,
       );
+      const cleanedOutcomes = (draft.learningOutcomes || [])
+        .map((o) => o.trim())
+        .filter(Boolean)
+        .slice(0, 6);
+
       const coursePayload = {
         instructor_id: instructorId,
-        title: draft.title.trim(),
-        slug: slugify(draft.title) || `course-${Date.now()}`,
+        title: courseTitle,
+        slug: courseSlug,
         description: draft.description.trim(),
         thumbnail_url: draft.thumbnailUrl || null,
         category: draft.category,
@@ -84,6 +245,7 @@ export function CourseBuilderDialog({
         preview_video_url: draft.previewVideoUrl || null,
         duration_minutes: duration,
         status,
+        learning_outcomes: cleanedOutcomes,
       };
 
       const courseResult = draft.id
@@ -95,6 +257,30 @@ export function CourseBuilderDialog({
       }
 
       const courseId = courseResult.data.id;
+      try {
+        localStorage.setItem(
+          `lumio_course_outcomes_${courseId}`,
+          JSON.stringify(cleanedOutcomes),
+        );
+      } catch {}
+      let thumbnailUrl = draft.thumbnailUrl;
+
+      if (draft.thumbnailFile) {
+        const thumbnailPath = `${instructorId}/${courseId}/${createId("thumbnail")}-${storageSafeName(
+          draft.thumbnailFile.name,
+        )}`;
+        const thumbnailResult = await uploadCourseThumbnail(
+          thumbnailPath,
+          draft.thumbnailFile,
+        );
+        if (thumbnailResult.error) throw thumbnailResult.error;
+        thumbnailUrl = getPublicStorageUrl("course-thumbnails", thumbnailPath);
+        const thumbnailUpdate = await updateCourse(courseId, {
+          thumbnail_url: thumbnailUrl,
+        });
+        if (thumbnailUpdate.error) throw thumbnailUpdate.error;
+      }
+
       const moduleRows = draft.modules.map((module, index) => ({
         id: module.persistedId,
         course_id: courseId,
@@ -105,58 +291,87 @@ export function CourseBuilderDialog({
       if (modulesResult.error) throw modulesResult.error;
 
       const savedModules = modulesResult.data ?? [];
+      const lessonRefs: Array<{
+        moduleIndex: number;
+        lessonIndex: number;
+        lesson: CourseBuilderDraft["modules"][number]["lessons"][number];
+      }> = [];
       const lessons = draft.modules.flatMap((module, moduleIndex) => {
         const savedModule = savedModules[moduleIndex];
         if (!savedModule) return [];
-        return module.lessons.map((lesson, lessonIndex) => ({
-          id: lesson.persistedId,
-          module_id: savedModule.id,
-          title: lesson.title,
-          description: lesson.description || null,
-          youtube_url: lesson.youtubeUrl || draft.previewVideoUrl,
-          duration_minutes: Number(lesson.durationMinutes || 0),
-          core_concept: lesson.coreConcept || null,
-          sort_order: lessonIndex + 1,
-        }));
+        return module.lessons.map((lesson, lessonIndex) => {
+          lessonRefs.push({ moduleIndex, lessonIndex, lesson });
+          return {
+            id: lesson.persistedId,
+            module_id: savedModule.id,
+            title: lesson.title,
+            description: lesson.description || null,
+            youtube_url: lesson.youtubeUrl || draft.previewVideoUrl,
+            duration_minutes: Number(lesson.durationMinutes || 0),
+            core_concept: lesson.coreConcept || null,
+            sort_order: lessonIndex + 1,
+          };
+        });
       });
 
       if (lessons.length) {
         const lessonsResult = await upsertLessons(courseId, lessons);
         if (lessonsResult.error) throw lessonsResult.error;
+        const savedLessons = lessonsResult.data ?? [];
 
-        for (const module of draft.modules) {
-          for (const lesson of module.lessons) {
-            for (const resource of lesson.resources) {
-              if (!resource.title || !resource.externalUrl) continue;
-              await createResource({
-                course_id: courseId,
-                title: resource.title,
-                external_url: resource.externalUrl,
-                resource_kind: resource.resourceKind,
-              });
+        for (const [index, lessonRef] of lessonRefs.entries()) {
+          const savedLesson = savedLessons[index];
+          if (!savedLesson) continue;
+
+          for (const resource of lessonRef.lesson.resources) {
+            if (!resource.title || (!resource.file && !resource.externalUrl)) continue;
+
+            let filePath = resource.filePath ?? null;
+            let externalUrl = resource.externalUrl || null;
+            let resourceKind = resource.resourceKind;
+
+            if (resource.file) {
+              filePath = `${instructorId}/${courseId}/${savedLesson.id}/${resource.id}-${storageSafeName(
+                resource.file.name,
+              )}`;
+              const uploadResult = await uploadResourceFile(filePath, resource.file);
+              if (uploadResult.error) throw uploadResult.error;
+              externalUrl = getPublicStorageUrl("lesson-resources", filePath);
+              resourceKind = resourceKindFromFile(resource.file);
             }
+
+            const resourceResult = await createResource({
+              course_id: courseId,
+              lesson_id: savedLesson.id,
+              title: resource.title,
+              file_path: filePath,
+              external_url: externalUrl,
+              resource_kind: resourceKind,
+            });
+            if (resourceResult.error) throw resourceResult.error;
           }
         }
       }
 
       if (status !== "draft") {
-        await setCourseStatus(courseId, status);
+        const statusResult = await setCourseStatus(courseId, status);
+        if (statusResult.error) throw statusResult.error;
       }
 
       setDraft((current) => ({
         ...current,
         id: courseId,
+        slug: courseSlug,
+        thumbnailUrl,
+        thumbnailFile: null,
         status,
       }));
       onSaved();
     } catch (saveError) {
-      setError(
-        saveError instanceof Error
-          ? saveError.message
-          : "Unable to save this course.",
-      );
+      setError(formatSaveError(saveError));
     } finally {
       setIsSaving(false);
+      setSavingStatus(null);
     }
   };
 
@@ -187,6 +402,89 @@ export function CourseBuilderDialog({
           : module,
       ),
     }));
+  };
+
+  const handleThumbnailChange = (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > maxThumbnailSize) {
+      setError("Thumbnail must be a PNG, JPG, or WebP image under 5MB.");
+      return;
+    }
+
+    setError(null);
+    setDraft((current) => ({
+      ...current,
+      thumbnailFile: file,
+      thumbnailUrl: "",
+    }));
+  };
+
+  const removeThumbnail = () => {
+    setDraft((current) => ({
+      ...current,
+      thumbnailFile: null,
+      thumbnailUrl: "",
+    }));
+  };
+
+  const updateResourceFile = (
+    moduleId: string,
+    lessonId: string,
+    resourceId: string,
+    file: File | undefined,
+  ) => {
+    if (!file) return;
+    if (!isAllowedResourceFile(file)) {
+      setError(
+        "Resources must be PDFs, docs, Markdown/text files, or PNG/JPG/WebP images. Videos are not supported.",
+      );
+      return;
+    }
+
+    setError(null);
+    updateLesson(moduleId, lessonId, {
+      resources: draft.modules
+        .find((module) => module.id === moduleId)
+        ?.lessons.find((lesson) => lesson.id === lessonId)
+        ?.resources.map((resource) =>
+          resource.id === resourceId
+            ? {
+                ...resource,
+                title: resource.title === "Resource" ? file.name : resource.title,
+                resourceKind: resourceKindFromFile(file),
+                file,
+                fileName: file.name,
+                externalUrl: "",
+              }
+            : resource,
+        ) ?? [],
+    });
+  };
+
+  const removeResourceFile = (
+    moduleId: string,
+    lessonId: string,
+    resourceId: string,
+  ) => {
+    const lesson = draft.modules
+      .find((module) => module.id === moduleId)
+      ?.lessons.find((item) => item.id === lessonId);
+
+    if (!lesson) return;
+
+    updateLesson(moduleId, lessonId, {
+      resources: lesson.resources.map((resource) =>
+        resource.id === resourceId
+          ? {
+              ...resource,
+              file: null,
+              fileName: "",
+              filePath: "",
+              externalUrl: "",
+            }
+          : resource,
+      ),
+    });
   };
 
   return (
@@ -241,6 +539,7 @@ export function CourseBuilderDialog({
                 <input
                   className={fieldClass()}
                   value={draft.title}
+                  maxLength={characterLimits.courseTitle}
                   onBlur={() => draft.id && saveDraft("draft")}
                   onChange={(event) =>
                     setDraft((current) => ({
@@ -248,6 +547,10 @@ export function CourseBuilderDialog({
                       title: event.target.value,
                     }))
                   }
+                />
+                <CharacterCount
+                  value={draft.title}
+                  max={characterLimits.courseTitle}
                 />
               </label>
               <label className="space-y-1.5 text-xs">
@@ -287,23 +590,40 @@ export function CourseBuilderDialog({
                 </select>
               </label>
               <label className="space-y-1.5 text-xs">
-                Thumbnail URL
+                Thumbnail upload
                 <input
-                  className={fieldClass()}
-                  value={draft.thumbnailUrl}
+                  key={draft.thumbnailFile?.name || draft.thumbnailUrl || "empty-thumbnail"}
+                  className={`${fieldClass()} file:mr-3 file:rounded-sm file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-[11px] file:text-on-primary`}
+                  type="file"
+                  accept={acceptedThumbnailTypes}
                   onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      thumbnailUrl: event.target.value,
-                    }))
+                    handleThumbnailChange(event.target.files?.[0])
                   }
                 />
+                <div className="flex items-center justify-between gap-3">
+                  <span className="block text-[10px] font-light text-on-surface-variant">
+                    {draft.thumbnailFile?.name ||
+                      (draft.thumbnailUrl
+                        ? "Existing thumbnail selected"
+                        : "PNG, JPG, or WebP under 5MB")}
+                  </span>
+                  {(draft.thumbnailFile || draft.thumbnailUrl) && (
+                    <button
+                      type="button"
+                      className="text-[10px] font-medium text-error transition hover:underline"
+                      onClick={removeThumbnail}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
               </label>
               <label className="space-y-1.5 text-xs md:col-span-2">
                 Short preview YouTube URL
                 <input
                   className={fieldClass()}
                   value={draft.previewVideoUrl}
+                  maxLength={characterLimits.url}
                   onChange={(event) =>
                     setDraft((current) => ({
                       ...current,
@@ -311,12 +631,17 @@ export function CourseBuilderDialog({
                     }))
                   }
                 />
+                <CharacterCount
+                  value={draft.previewVideoUrl}
+                  max={characterLimits.url}
+                />
               </label>
               <label className="space-y-1.5 text-xs md:col-span-2">
                 Description
                 <textarea
                   className={`${fieldClass()} min-h-28 resize-y`}
                   value={draft.description}
+                  maxLength={characterLimits.courseDescription}
                   onChange={(event) =>
                     setDraft((current) => ({
                       ...current,
@@ -324,7 +649,85 @@ export function CourseBuilderDialog({
                     }))
                   }
                 />
+                <CharacterCount
+                  value={draft.description}
+                  max={characterLimits.courseDescription}
+                />
               </label>
+
+              {/* What you'll learn Section (Max 6 inputs) */}
+              <div className="space-y-3 text-xs md:col-span-2 rounded-sm border border-border/40 bg-surface-container-low p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-medium text-on-surface">What you'll learn</span>
+                    <p className="text-[11px] font-light text-on-surface-variant">
+                      List key outcomes students will master in this course (max 6).
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-light text-on-surface-variant">
+                    {(draft.learningOutcomes || []).length}/6 outcomes
+                  </span>
+                </div>
+
+                <div className="grid gap-2.5 sm:grid-cols-2">
+                  {(draft.learningOutcomes || []).map((outcome, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
+                        {idx + 1}
+                      </span>
+                      <input
+                        className={fieldClass()}
+                        placeholder={`Outcome #${idx + 1}`}
+                        value={outcome}
+                        maxLength={characterLimits.outcome}
+                        onChange={(event) => {
+                          const val = event.target.value;
+                          setDraft((current) => {
+                            const list = [...(current.learningOutcomes || ["", "", "", ""])];
+                            list[idx] = val;
+                            return { ...current, learningOutcomes: list };
+                          });
+                        }}
+                      />
+                      {(draft.learningOutcomes || []).length > 1 && (
+                        <button
+                          type="button"
+                          className="p-1 text-on-surface-variant hover:text-error transition shrink-0"
+                          title="Remove outcome"
+                          onClick={() => {
+                            setDraft((current) => {
+                              const list = [...(current.learningOutcomes || [])];
+                              list.splice(idx, 1);
+                              return { ...current, learningOutcomes: list };
+                            });
+                          }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {(draft.learningOutcomes || []).length < 6 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-1 inline-flex items-center gap-1.5"
+                    onClick={() => {
+                      setDraft((current) => {
+                        const list = [...(current.learningOutcomes || [])];
+                        if (list.length < 6) list.push("");
+                        return { ...current, learningOutcomes: list };
+                      });
+                    }}
+                  >
+                    <Plus size={14} />
+                    Add outcome
+                  </Button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -334,14 +737,22 @@ export function CourseBuilderDialog({
                   className="rounded-sm border border-border/40 bg-surface-container-low p-4"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <input
-                      className={fieldClass()}
-                      value={module.title}
-                      onBlur={() => draft.id && saveDraft("draft")}
-                      onChange={(event) =>
-                        updateModule(module.id, event.target.value)
-                      }
-                    />
+                    <label className="flex-1 text-xs">
+                      Module title
+                      <input
+                        className={`${fieldClass()} mt-1.5`}
+                        value={module.title}
+                        maxLength={characterLimits.moduleTitle}
+                        onBlur={() => draft.id && saveDraft("draft")}
+                        onChange={(event) =>
+                          updateModule(module.id, event.target.value)
+                        }
+                      />
+                      <CharacterCount
+                        value={module.title}
+                        max={characterLimits.moduleTitle}
+                      />
+                    </label>
                     <div className="flex gap-2">
                       <Button
                         type="button"
@@ -394,35 +805,59 @@ export function CourseBuilderDialog({
                         className="rounded-sm bg-surface-container-lowest p-3"
                       >
                         <div className="grid gap-3 md:grid-cols-2">
-                          <input
-                            className={fieldClass()}
-                            value={lesson.title}
-                            onChange={(event) =>
-                              updateLesson(module.id, lesson.id, {
-                                title: event.target.value,
-                              })
-                            }
-                          />
-                          <input
-                            className={fieldClass()}
-                            value={lesson.youtubeUrl}
-                            placeholder="YouTube video URL"
-                            onChange={(event) =>
-                              updateLesson(module.id, lesson.id, {
-                                youtubeUrl: event.target.value,
-                              })
-                            }
-                          />
-                          <textarea
-                            className={`${fieldClass()} min-h-20 md:col-span-2`}
-                            value={lesson.description}
-                            placeholder="Lesson description"
-                            onChange={(event) =>
-                              updateLesson(module.id, lesson.id, {
-                                description: event.target.value,
-                              })
-                            }
-                          />
+                          <label className="text-xs">
+                            Lesson title
+                            <input
+                              className={`${fieldClass()} mt-1.5`}
+                              value={lesson.title}
+                              maxLength={characterLimits.lessonTitle}
+                              onChange={(event) =>
+                                updateLesson(module.id, lesson.id, {
+                                  title: event.target.value,
+                                })
+                              }
+                            />
+                            <CharacterCount
+                              value={lesson.title}
+                              max={characterLimits.lessonTitle}
+                            />
+                          </label>
+                          <label className="text-xs">
+                            YouTube video URL
+                            <input
+                              className={`${fieldClass()} mt-1.5`}
+                              value={lesson.youtubeUrl}
+                              placeholder="YouTube video URL"
+                              maxLength={characterLimits.url}
+                              onChange={(event) =>
+                                updateLesson(module.id, lesson.id, {
+                                  youtubeUrl: event.target.value,
+                                })
+                              }
+                            />
+                            <CharacterCount
+                              value={lesson.youtubeUrl}
+                              max={characterLimits.url}
+                            />
+                          </label>
+                          <label className="text-xs md:col-span-2">
+                            Lesson description
+                            <textarea
+                              className={`${fieldClass()} mt-1.5 min-h-20`}
+                              value={lesson.description}
+                              placeholder="Lesson description"
+                              maxLength={characterLimits.lessonDescription}
+                              onChange={(event) =>
+                                updateLesson(module.id, lesson.id, {
+                                  description: event.target.value,
+                                })
+                              }
+                            />
+                            <CharacterCount
+                              value={lesson.description}
+                              max={characterLimits.lessonDescription}
+                            />
+                          </label>
                           <div className="flex items-center gap-2">
                             <label className="text-xs">Duration(Minutes)</label>
                              <input
@@ -437,16 +872,24 @@ export function CourseBuilderDialog({
                             }
                           />
                           </div>
-                          <input
-                            className={fieldClass()}
-                            value={lesson.coreConcept}
-                            placeholder="Core concept summary"
-                            onChange={(event) =>
-                              updateLesson(module.id, lesson.id, {
-                                coreConcept: event.target.value,
-                              })
-                            }
-                          />
+                          <label className="text-xs">
+                            Core concept
+                            <input
+                              className={`${fieldClass()} mt-1.5`}
+                              value={lesson.coreConcept}
+                              placeholder="Core concept summary"
+                              maxLength={characterLimits.coreConcept}
+                              onChange={(event) =>
+                                updateLesson(module.id, lesson.id, {
+                                  coreConcept: event.target.value,
+                                })
+                              }
+                            />
+                            <CharacterCount
+                              value={lesson.coreConcept}
+                              max={characterLimits.coreConcept}
+                            />
+                          </label>
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <Button
@@ -460,7 +903,9 @@ export function CourseBuilderDialog({
                                   {
                                     id: createId("resource"),
                                     title: "Resource",
-                                    resourceKind: "link",
+                                    resourceKind: "document",
+                                    file: null,
+                                    fileName: "",
                                     externalUrl: "",
                                   },
                                 ],
@@ -545,21 +990,71 @@ export function CourseBuilderDialog({
                             key={resource.id}
                             className="mt-3 grid gap-2 md:grid-cols-[1fr_1fr_auto]"
                           >
-                            <input className={fieldClass()} value={resource.title} readOnly />
-                            <input
-                              className={fieldClass()}
-                              placeholder="Resource URL"
-                              value={resource.externalUrl}
-                              onChange={(event) =>
-                                updateLesson(module.id, lesson.id, {
-                                  resources: lesson.resources.map((item) =>
-                                    item.id === resource.id
-                                      ? { ...item, externalUrl: event.target.value }
-                                      : item,
-                                  ),
-                                })
-                              }
-                            />
+                            <label className="text-xs">
+                              Resource title
+                              <input
+                                className={`${fieldClass()} mt-1.5`}
+                                value={resource.title}
+                                maxLength={characterLimits.resourceTitle}
+                                onChange={(event) =>
+                                  updateLesson(module.id, lesson.id, {
+                                    resources: lesson.resources.map((item) =>
+                                      item.id === resource.id
+                                        ? { ...item, title: event.target.value }
+                                        : item,
+                                    ),
+                                  })
+                                }
+                              />
+                              <CharacterCount
+                                value={resource.title}
+                                max={characterLimits.resourceTitle}
+                              />
+                            </label>
+                            <label className="text-xs">
+                              Resource file
+                              <input
+                                key={
+                                  resource.fileName ||
+                                  resource.externalUrl ||
+                                  `${resource.id}-empty-file`
+                                }
+                                className={`${fieldClass()} mt-1.5 file:mr-3 file:rounded-sm file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-[11px] file:text-on-primary`}
+                                type="file"
+                                accept={acceptedResourceTypes}
+                                onChange={(event) =>
+                                  updateResourceFile(
+                                    module.id,
+                                    lesson.id,
+                                    resource.id,
+                                    event.target.files?.[0],
+                                  )
+                                }
+                              />
+                              <div className="flex items-center justify-between gap-3 pt-1">
+                                <span className="block text-[10px] font-light text-on-surface-variant">
+                                  {resource.fileName ||
+                                    (resource.externalUrl
+                                      ? "Existing resource selected"
+                                      : "PDF, DOC, DOCX, MD, TXT, or small image. No videos.")}
+                                </span>
+                                {(resource.fileName || resource.externalUrl) && (
+                                  <button
+                                    type="button"
+                                    className="text-[10px] font-medium text-error transition hover:underline"
+                                    onClick={() =>
+                                      removeResourceFile(
+                                        module.id,
+                                        lesson.id,
+                                        resource.id,
+                                      )
+                                    }
+                                  >
+                                    Remove
+                                  </button>
+                                )}
+                              </div>
+                            </label>
                             <Button
                               type="button"
                               variant="destructive"
@@ -618,23 +1113,40 @@ export function CourseBuilderDialog({
             </div>
           )}
 
-          {error && <p className="mt-4 text-xs text-error">{error}</p>}
-          {!isValid && (
-            <p className="mt-4 text-xs text-on-surface-variant">
-              Add a title, useful description, and valid YouTube URLs before saving.
+          {error ? (
+            <p className="mt-4 rounded-sm bg-error/10 px-3 py-2 text-xs text-error">
+              {error}
             </p>
-          )}
+          ) : validationMessage ? (
+            <p className="mt-4 text-xs text-on-surface-variant">
+              {validationMessage}
+            </p>
+          ) : null}
         </div>
 
         <footer className="flex flex-col gap-2 border-t border-outline-variant/30 px-5 py-4 sm:flex-row sm:justify-end">
-          <Button type="button" variant="outline" onClick={() => saveDraft("draft")}>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isSaving}
+            onClick={() => saveDraft("draft")}
+          >
             <Save /> Save as Draft
           </Button>
-          <Button type="button" variant="outline" onClick={() => saveDraft("saved")}>
-            Save
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isSaving}
+            onClick={() => saveDraft("saved")}
+          >
+            {savingStatus === "saved" ? "Saving..." : "Save"}
           </Button>
-          <Button type="button" onClick={() => saveDraft("published")}>
-            {isSaving ? "Saving..." : "Save & Publish"}
+          <Button
+            type="button"
+            disabled={isSaving}
+            onClick={() => saveDraft("published")}
+          >
+            {savingStatus === "published" ? "Publishing..." : "Save & Publish"}
           </Button>
         </footer>
       </section>

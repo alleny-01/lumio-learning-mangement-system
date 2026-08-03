@@ -1,8 +1,12 @@
 import { DashboardHero } from "./DashboardHero";
+import { DailyQuoteModal } from "./DailyQuoteModal";
+import { LearningStreakModal } from "./LearningStreakModal";
 import { StatsGrid } from "./StatsGrid";
 import { CoursesSection } from "./CoursesSection";
-import { ScheduleSection } from "./ScheduleSection";
-import { RightPanel } from "./RightPanel";
+import { CreateCoursePrompt } from "./CreateCoursePrompt";
+import { ContinueLearningCard } from "./ContinueLearningCard";
+import { WeeklyGoalCard } from "./WeeklyGoalCard";
+import { Calendar } from "@/components/ui/Calendar";
 import type { DashboardData, DashboardStat } from "../types";
 
 function buildStats(data: DashboardData): DashboardStat[] {
@@ -45,31 +49,45 @@ function buildStats(data: DashboardData): DashboardStat[] {
   ];
 }
 
-export function DashboardShell({ data }: { data: DashboardData }): React.JSX.Element {
+export function DashboardShell({
+  data,
+}: {
+  data: DashboardData;
+}): React.JSX.Element {
   const recentCourses = data.courses.slice(0, 3);
 
   return (
     <div className="min-h-screen text-on-surface antialiased">
-      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-6">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-6">
-          <div className="space-y-4">
-            <DashboardHero
-              firstName={data.firstName}
-              weeklyStudyHours={data.weeklyStudyHours}
-              quote={data.quote}
-            />
+      <DailyQuoteModal quote={data.quote} />
+      <LearningStreakModal
+        streakDays={data.streakDays}
+        activity={data.activity}
+      />
 
-            <StatsGrid stats={buildStats(data)} />
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-6 space-y-6">
+        <DashboardHero
+          firstName={data.firstName}
+          weeklyStudyHours={data.weeklyStudyHours}
+        />
 
-            <CoursesSection courses={recentCourses} />
+        <StatsGrid stats={buildStats(data)} />
 
-            <ScheduleSection activity={data.activity} />
-          </div>
+        <section className="grid gap-4 xl:grid-cols-2">
+          <ContinueLearningCard courses={data.courses} />
+          <WeeklyGoalCard
+            activity={data.activity}
+            weeklyStudyHours={data.weeklyStudyHours}
+          />
+        </section>
 
-          <div className="space-y-4 lg:pt-10">
-            <RightPanel streakDays={data.streakDays} activity={data.activity} />
-          </div>
-        </div>
+        <CoursesSection courses={recentCourses} />
+
+        <CreateCoursePrompt />
+
+        {/* Full-width Calendar section at the bottom */}
+        <section className="w-full">
+          <Calendar selected={new Date()} />
+        </section>
       </div>
     </div>
   );

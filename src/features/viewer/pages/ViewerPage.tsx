@@ -17,8 +17,19 @@ export default function ViewerPage() {
 
   const data = useMemo(() => {
     const viewerData = buildFallbackViewerData(activeLessonId);
+    const allLessons = viewerData.chapters.flatMap((c) => c.lessons);
+    const totalLessons = allLessons.length;
+    const completedCount = allLessons.filter(
+      (l) => l.completed || completedLessons.has(l.id),
+    ).length;
+    const progressPercent =
+      totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
     return {
       ...viewerData,
+      completedLessons: completedCount,
+      totalLessons,
+      progressPercent,
       activeLesson: {
         ...viewerData.activeLesson,
         completed:
@@ -50,7 +61,14 @@ export default function ViewerPage() {
           return;
         }
       }
-      setCompletedLessons((current) => new Set(current).add(data.activeLesson.id));
+      setCompletedLessons((current) =>
+        new Set(current).add(data.activeLesson.id),
+      );
+
+      // Auto-advance to next lesson after marking complete
+      if (data.nextLesson) {
+        setTimeout(() => selectLesson(data.nextLesson!.id), 600);
+      }
     } finally {
       setIsCompleting(false);
     }
@@ -59,6 +77,7 @@ export default function ViewerPage() {
   return (
     <ViewerShell
       data={data}
+      completedLessonIds={completedLessons}
       onLessonSelect={selectLesson}
       onMarkComplete={handleMarkComplete}
       onNextLesson={() => {

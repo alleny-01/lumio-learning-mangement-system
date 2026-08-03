@@ -1,4 +1,5 @@
 import type { SettingsNavItem, SettingsSectionId } from "../types";
+import { cn } from "@/lib/utils";
 
 interface SettingsSidebarProps {
   items: SettingsNavItem[];
@@ -12,8 +13,12 @@ export function SettingsSidebar({
   onSelect,
 }: SettingsSidebarProps) {
   return (
-    <aside className="hidden w-55 shrink-0  border border-border/30 bg-surface-container-lowest p-4 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.25)] md:block">
-      <nav className="space-y-1.5">
+    <aside className="hidden w-full shrink-0 rounded-sm  bg-surface-container-lowest p-3.5 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.15)] md:block">
+      <p className="mb-3 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+        Settings
+      </p>
+
+      <nav className="space-y-1">
         {items.map((item) => {
           const isActive = item.id === activeId;
           const Icon = item.icon;
@@ -21,20 +26,32 @@ export function SettingsSidebar({
           return (
             <button
               key={item.id}
+              type="button"
               onClick={() => onSelect(item.id)}
-              className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-[13px] transition-all duration-200 ${
+              className={cn(
+                "group relative flex w-full items-center gap-3 rounded-sm px-3 py-2.5 text-left text-[12px] font-light tracking-wide transition-colors",
                 isActive
-                  ? "bg-primary/10 text-primary shadow-[0_8px_20px_-20px_rgba(53,37,205,0.75)]"
-                  : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
-              }`}
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
+              )}
               aria-pressed={isActive}
             >
+              {/* Active Left Pill */}
+              {isActive && (
+                <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-primary" />
+              )}
+
               <Icon
-                className={`size-4 shrink-0 ${isActive ? "text-primary" : "text-outline"}`}
+                className={cn(
+                  "size-4 shrink-0 transition-colors",
+                  isActive
+                    ? "text-primary"
+                    : "text-on-surface-variant group-hover:text-on-surface",
+                )}
+                strokeWidth={1.5}
               />
-              <span className="font-light tracking-[-0.01em]">
-                {item.label}
-              </span>
+
+              <span className="min-w-0 truncate">{item.label}</span>
             </button>
           );
         })}

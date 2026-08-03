@@ -2,11 +2,11 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { LMSContext } from "@/contexts/LMSContext";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { showToast } from "@/components/ui/Toast";
 import { enrollInCourse, getEnrollment } from "@/shared/api/enrollments";
 import { CourseHero } from "../components/CourseHero";
 import { CourseOverview } from "../components/CourseOverview";
 import { CourseSyllabus } from "../components/CourseSyllabus";
-import { AIFeatures} from "../components/AIFeatures";
 import { InstructorSection } from "../components/InstructorSection";
 import { COURSE_DETAIL } from "../constants";
 import { loadCourseDetail } from "../../api/courseData";
@@ -31,7 +31,7 @@ function CourseDetailPage() {
         if (!isMounted) return;
         setCourse(detail);
 
-        if (session?.user.id && !/^\\d+$/.test(courseId)) {
+        if (session?.user.id && !/^\d+$/.test(courseId)) {
           const { data } = await getEnrollment(session.user.id, courseId);
           if (isMounted) setIsEnrolled(Boolean(data));
         }
@@ -52,20 +52,53 @@ function CourseDetailPage() {
 
   const handleEnroll = async () => {
     if (!courseId) return;
-    if (isEnrolled || /^\\d+$/.test(courseId)) {
-      navigate(`/viewer?course=${course.id}`);
+
+    if (isEnrolled) {
+      showToast({
+        type: "info",
+        title: "Already Enrolled",
+        description: "Redirecting to your enrolled courses.",
+      });
+      navigate("/learning");
       return;
     }
-    if (!session?.user.id) return;
+
+    // Demo/Static numeric courses
+    if (/^\d+$/.test(courseId)) {
+      setIsEnrolled(true);
+      showToast({
+        type: "success",
+        title: "Course Enrolled!",
+        description: `Successfully enrolled in ${course.title}.`,
+      });
+      navigate("/learning");
+      return;
+    }
+
+    if (!session?.user.id) {
+      navigate("/signin");
+      return;
+    }
 
     setIsEnrolling(true);
     try {
       const { error } = await enrollInCourse(session.user.id, courseId);
       if (error) {
         setAuthError(error.message);
+        showToast({
+          type: "error",
+          title: "Enrollment Failed",
+          description: error.message,
+        });
         return;
       }
       setIsEnrolled(true);
+      showToast({
+        type: "success",
+        title: "Course Enrolled!",
+        description: `Successfully enrolled in ${course.title}.`,
+      });
+      navigate("/learning");
     } finally {
       setIsEnrolling(false);
     }
@@ -100,7 +133,6 @@ function CourseDetailPage() {
         onEnroll={handleEnroll}
       />
       <CourseOverview course={course} />
-      <AIFeatures />
       <InstructorSection instructor={course.instructor} />
       <CourseSyllabus modules={course.modules} />
     </main>

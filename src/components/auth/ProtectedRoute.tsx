@@ -2,18 +2,14 @@ import { Navigate } from "react-router-dom";
 import { useContext } from "react";
 import type { ReactElement } from "react";
 import { LMSContext } from "@/contexts/LMSContext";
-import { Spinner } from "@/components/ui/Spinner";
+import { PageSpinner } from "@/components/ui/PageSpinner";
 
 interface Props {
   children: ReactElement;
 }
 
 function RouteSpinner() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-surface">
-      <Spinner />
-    </div>
-  );
+  return <PageSpinner />;
 }
 
 export default function ProtectedRoute({ children }: Props) {

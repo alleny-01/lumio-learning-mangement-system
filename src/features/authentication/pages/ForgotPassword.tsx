@@ -95,7 +95,7 @@ const ForgotPassword = () : React.JSX.Element => {
 
           <Link
             to="/signin"
-            className="inline-flex items-center gap-1 text-xs font-medium mt-2 hover:underline mt-5"
+            className="inline-flex items-center gap-1 text-xs font-medium hover:underline mt-5"
           >
             &larr; Back to Sign In
           </Link>

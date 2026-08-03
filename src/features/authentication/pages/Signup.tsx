@@ -5,7 +5,7 @@ import { FcGoogle } from "react-icons/fc";
 import { Spinner } from "@/components/ui/Spinner";
 import { LMSContext } from "@/contexts/LMSContext";
 import { signInWithGoogle, signUpWithPassword } from "@/shared/api/auth";
-import { Button } from "../../../components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import Input from "@/features/authentication/ui/Input";
 import SocialButton from "@/features/authentication/ui/SocialButton";
 import AuthenticationForm from "../components/AuthenticationForm";
@@ -26,6 +26,7 @@ function SignupPage(): React.JSX.Element {
   const passwordMatch = signUpPassword === confirmPassword;
   const isPasswordValid =
     atleastSixChars && hasUppercase && hasSpecialChar && passwordMatch;
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const auth = useContext(LMSContext);
   const isLoading = auth?.isLoading ?? false;
@@ -36,16 +37,13 @@ function SignupPage(): React.JSX.Element {
     if (session) navigate("/courses");
   }, [session, navigate]);
 
-  // Helper: persist signup email so EmailConfirmation page can read it after refresh
   const persistSignUpEmail = (email: string) => {
     try {
       localStorage.setItem("lumio_sign_up_email", email);
     } catch {
-      // ignore
     }
   };
 
-  // Sign up (creates account and sends confirmation email)
   const signUp = async (email: string, password: string) => {
     if (isLoading) return { success: false, error: "busy" };
     if (!email || !password) {
@@ -54,16 +52,17 @@ function SignupPage(): React.JSX.Element {
 
     auth?.setIsLoading(true);
     try {
-      // persist the email locally so the confirmation page can show it
       persistSignUpEmail(email.toLowerCase());
-      const { data, error } = await signUpWithPassword(email, password);
+      const { data, error } = await signUpWithPassword(email, password, {
+        first_name: firstName,
+        last_name: lastName,
+      });
 
       if (error) {
         auth?.setAuthError(error.message);
         return { success: false, error };
       }
 
-      // navigate to confirmation page (email shown from localStorage or context)
       navigate("/email-confirmation");
       return { success: true, data };
     } catch (err) {
@@ -95,7 +94,7 @@ function SignupPage(): React.JSX.Element {
         onMouseLeave={() => setIsHovered(false)}
       >
         <div
-          className={`absolute inset-0 bg-no-repeat bg-center bg-cover transition-all duration-700 ease-in-out ${
+          className={`absolute inset-0 bg-no-repeat bg-right bg-cover transition-all duration-700 ease-in-out ${
             isHovered
               ? "scale-[1.2] shadow-[0_0_40px_rgba(168,85,247,0.4),0_0_80px_rgba(59,130,246,0.2)]"
               : "scale-100"
@@ -133,7 +132,6 @@ function SignupPage(): React.JSX.Element {
 
           <div className="mt-6 rounded-md w-full border border-border/50 bg-card/40 backdrop-blur-sm shadow-xl shadow-primary/5 p-5">
             <form
-              action="#"
               className="space-y-5"
               onSubmit={(e) => {
                 e.preventDefault();
@@ -344,6 +342,8 @@ function SignupPage(): React.JSX.Element {
                       id="terms"
                       name="terms"
                       type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
                       className="h-4 w-3 rounded border-outline-variant text-primary focus:ring-primary bg-surface-container-low"
                     />
                   </div>
@@ -354,19 +354,19 @@ function SignupPage(): React.JSX.Element {
                       className="font-body text-on-surface-variant"
                     >
                       I agree to the{" "}
-                      <a
-                        href="#"
+                      <Link
+                        to="/terms"
                         className="text-primary-container font-medium hover:underline underline-offset-4 transition-all"
                       >
                         Terms of Service
-                      </a>{" "}
+                      </Link>{" "}
                       and{" "}
-                      <a
-                        href="#"
+                      <Link
+                        to="/privacy"
                         className="text-primary-container font-medium hover:underline underline-offset-4 transition-all"
                       >
                         Privacy Policy
-                      </a>
+                      </Link>
                       .
                     </label>
                   </div>
@@ -384,7 +384,8 @@ function SignupPage(): React.JSX.Element {
                   !signUpEmail ||
                   !signUpPassword ||
                   !confirmPassword ||
-                  !isPasswordValid
+                  !isPasswordValid ||
+                  !termsAccepted
                 }
               >
                 <span>
@@ -412,13 +413,12 @@ function SignupPage(): React.JSX.Element {
 
             <div className="space-y-4">
               <div className="flex items-center justify-center">
-                {" "}
                 <SocialButton
                   icon={<FcGoogle size={20} />}
                   onClick={() => handleGoogleSignUp()}
                 >
                   Google
-                </SocialButton>{" "}
+                </SocialButton>
               </div>
 
               <p className="text-center text-[8.3px] sm:text-[10px] tracking-widest text-muted-foreground">

@@ -8,8 +8,7 @@ interface SocialButtonProps
 function SocialButton({ icon, children, ...props }: SocialButtonProps) {
   return (
     <button
-      className="flex items-center justify-center gap-2 py-2.5 px-4 bg-surface-container-low hover:bg-surface-container-high font-bold text-sm font-medium rounded-lg transition-colors border border-outline-variant/10 w-full"
-      onClick={props.onClick}
+      className="flex items-center justify-center gap-2 py-2.5 px-4 bg-surface-container-low hover:bg-surface-container-high text-sm font-medium rounded-lg transition-colors border border-outline-variant/10 w-full"
       {...props}
     >
       {icon}

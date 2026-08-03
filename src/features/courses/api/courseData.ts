@@ -90,32 +90,14 @@ export async function loadCatalogCourses(params: {
     });
 
     if (error) throw error;
-    const courses = ((data ?? []) as CourseWithProfile[]).map(toCatalogCourse);
+    const catalogList = ((data ?? []) as CourseWithProfile[]).map(toCatalogCourse);
     return {
-      courses: courses.length ? courses : fallbackCatalogCourses,
-      total: count ?? courses.length,
-      isFallback: courses.length === 0,
+      courses: catalogList,
+      total: count ?? catalogList.length,
+      isFallback: false,
     };
   } catch {
-    const search = params.search.trim().toLowerCase();
-    let localCourses = fallbackCatalogCourses.filter((course) => {
-      const matchesSearch =
-        !search ||
-        course.title.toLowerCase().includes(search) ||
-        course.description.toLowerCase().includes(search) ||
-        course.instructor.toLowerCase().includes(search);
-      const matchesCategory =
-        params.category === "All Categories" || course.category === params.category;
-      const matchesDifficulty =
-        params.difficulty === "all" || course.difficulty === params.difficulty;
-      const matchesRating = course.rating >= params.minimumRating;
-      return matchesSearch && matchesCategory && matchesDifficulty && matchesRating;
-    });
-
-    const total = localCourses.length;
-    const start = (params.page - 1) * params.pageSize;
-    localCourses = localCourses.slice(start, start + params.pageSize);
-    return { courses: localCourses, total, isFallback: true };
+    return { courses: [], total: 0, isFallback: false };
   }
 }
 
@@ -167,13 +149,25 @@ function toInstructor(profile?: Tables<"profiles"> | null): Instructor {
 }
 
 export async function loadCourseDetail(courseId: string): Promise<CourseDetail> {
-  if (/^\\d+$/.test(courseId)) return COURSE_DETAIL;
+  if (/^\d+$/.test(courseId)) return COURSE_DETAIL;
 
   try {
     const { data, error } = await getCourse(courseId);
     if (error || !data) throw error;
     const course = data as DetailCourseRow;
     const modules = toCourseModules(course.course_modules ?? []);
+
+    let rawOutcomes: string[] = (course as any).learning_outcomes || (course as any).learningOutcomes || [];
+    if (!rawOutcomes.length) {
+      try {
+        const cached = localStorage.getItem(`lumio_course_outcomes_${courseId}`);
+        if (cached) rawOutcomes = JSON.parse(cached);
+      } catch {}
+    }
+
+    const outcomes = rawOutcomes.length > 0
+      ? rawOutcomes.filter((t) => t.trim().length > 0).map((title, idx) => ({ id: `outcome-${idx + 1}`, title }))
+      : COURSE_DETAIL.learningOutcomes;
 
     return {
       id: course.id,
@@ -185,12 +179,7 @@ export async function loadCourseDetail(courseId: string): Promise<CourseDetail> 
       duration: formatDuration(course.duration_minutes),
       description: course.description,
       overview: course.description,
-      learningOutcomes: [
-        { id: "outcome-1", title: `Build confidence with ${course.category}` },
-        { id: "outcome-2", title: "Practice through structured lessons" },
-        { id: "outcome-3", title: "Track your progress lesson by lesson" },
-        { id: "outcome-4", title: "Apply concepts to real projects" },
-      ],
+      learningOutcomes: outcomes,
       modules: modules.length ? modules : COURSE_DETAIL.modules,
       instructor: toInstructor(course.profiles),
       enrolledCount: course.enrolled_count,
@@ -203,7 +192,75 @@ export async function loadCourseDetail(courseId: string): Promise<CourseDetail> 
   }
 }
 
-function toViewerLesson(lesson: LessonRow): ViewerLesson {
+const defaultLessonResources: Record<string, ResourceItem[]> = {
+  foundations: [
+    {
+      id: "res-1",
+      title: "Lumio-Foundations-Cheatsheet.md",
+      fileName: "Lumio-Foundations-Cheatsheet.md",
+      fileSize: "Markdown • 18 KB",
+      resourceKind: "document",
+    },
+    {
+      id: "res-2",
+      title: "System-Architecture-Overview.pdf",
+      fileName: "System-Architecture-Overview.pdf",
+      fileSize: "PDF • 1.4 MB",
+      resourceKind: "document",
+    },
+  ],
+  "tonal-depth": [
+    {
+      id: "res-3",
+      title: "Tonal-Depth-Execution-Guide.pdf",
+      fileName: "Tonal-Depth-Execution-Guide.pdf",
+      fileSize: "PDF • 2.1 MB",
+      resourceKind: "document",
+    },
+    {
+      id: "res-4",
+      title: "Surface-Container-Tokens.json",
+      fileName: "Surface-Container-Tokens.json",
+      fileSize: "JSON • 8 KB",
+      resourceKind: "code",
+    },
+    {
+      id: "res-5",
+      title: "UI-Palette-Assets.zip",
+      fileName: "UI-Palette-Assets.zip",
+      fileSize: "ZIP • 4.8 MB",
+      resourceKind: "archive",
+    },
+  ],
+  "visual-rhythm": [
+    {
+      id: "res-6",
+      title: "Visual-Rhythm-Design-Specs.pdf",
+      fileName: "Visual-Rhythm-Design-Specs.pdf",
+      fileSize: "PDF • 3.2 MB",
+      resourceKind: "document",
+    },
+  ],
+};
+
+function toViewerLesson(lesson: LessonRow & { resources?: ResourceItem[] }): ViewerLesson {
+  const resources = lesson.resources || defaultLessonResources[lesson.id] || [
+    {
+      id: `res-def-${lesson.id}-1`,
+      title: `${lesson.title.replace(/[^a-zA-Z0-9]+/g, "-")}-Notes.md`,
+      fileName: `${lesson.title.replace(/[^a-zA-Z0-9]+/g, "-")}-Notes.md`,
+      fileSize: "Markdown • 12 KB",
+      resourceKind: "document",
+    },
+    {
+      id: `res-def-${lesson.id}-2`,
+      title: "Lesson-Summary-Guide.pdf",
+      fileName: "Lesson-Summary-Guide.pdf",
+      fileSize: "PDF • 1.2 MB",
+      resourceKind: "document",
+    },
+  ];
+
   return {
     id: lesson.id,
     courseId: lesson.course_id,
@@ -215,6 +272,7 @@ function toViewerLesson(lesson: LessonRow): ViewerLesson {
       lesson.core_concept ??
       "Capture the main idea, then apply it in the next practical step.",
     completed: Boolean(lesson.isCompleted),
+    resources,
   };
 }
 
@@ -226,7 +284,7 @@ export function buildFallbackViewerData(activeLessonId = "tonal-depth"): ViewerD
       module_id: "chapter-1",
       title: "Foundations of Lumio",
       description: "Get oriented with the course structure and learning goals.",
-      youtube_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      youtube_url: "",
       duration_minutes: 10,
       core_concept: "Clear learning paths make progress visible and motivating.",
       sort_order: 1,
@@ -241,7 +299,7 @@ export function buildFallbackViewerData(activeLessonId = "tonal-depth"): ViewerD
       title: "Tonal Depth Execution",
       description:
         "Understand how surface hierarchy creates depth without heavy borders.",
-      youtube_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      youtube_url: "",
       duration_minutes: 12,
       core_concept:
         "Depth in a learning interface should come from tonal shifts, spacing, and clear hierarchy.",
@@ -256,7 +314,7 @@ export function buildFallbackViewerData(activeLessonId = "tonal-depth"): ViewerD
       module_id: "chapter-2",
       title: "Asymmetric Visual Rhythm",
       description: "Use contrast and spacing to keep complex layouts readable.",
-      youtube_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      youtube_url: "",
       duration_minutes: 15,
       core_concept:
         "Visual rhythm guides attention by creating intentional pauses and emphasis.",

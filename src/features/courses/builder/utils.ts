@@ -1,14 +1,8 @@
 import type { CourseBuilderDraft, BuilderModule } from "./types";
 import type { Tables } from "@/shared/types/database";
+import { courseCategories } from "@/shared/constants/courseOptions";
 
-export const courseCategories = [
-  "Design",
-  "Development",
-  "Marketing",
-  "Business",
-  "Data",
-  "Product",
-] as const;
+export { courseCategories };
 
 export function createId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -51,13 +45,23 @@ export function createEmptyDraft(): CourseBuilderDraft {
     difficulty: "beginner",
     previewVideoUrl: "",
     status: "draft",
+    learningOutcomes: ["", "", "", ""],
     modules: [createEmptyModule()],
   };
 }
 
 export function draftFromCourse(course: Tables<"courses">): CourseBuilderDraft {
+  let storedOutcomes: string[] = (course as any).learning_outcomes || (course as any).learningOutcomes || [];
+  if (!storedOutcomes.length) {
+    try {
+      const cached = localStorage.getItem(`lumio_course_outcomes_${course.id}`);
+      if (cached) storedOutcomes = JSON.parse(cached);
+    } catch {}
+  }
+
   return {
     id: course.id,
+    slug: course.slug,
     title: course.title,
     description: course.description,
     thumbnailUrl: course.thumbnail_url ?? "",
@@ -65,6 +69,7 @@ export function draftFromCourse(course: Tables<"courses">): CourseBuilderDraft {
     difficulty: course.difficulty,
     previewVideoUrl: course.preview_video_url ?? "",
     status: course.status,
+    learningOutcomes: storedOutcomes.length > 0 ? storedOutcomes.slice(0, 6) : ["", "", "", ""],
     modules: [createEmptyModule()],
   };
 }

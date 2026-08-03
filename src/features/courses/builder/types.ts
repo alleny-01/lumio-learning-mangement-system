@@ -9,6 +9,9 @@ export interface BuilderResource {
   id: string;
   title: string;
   resourceKind: ResourceKind;
+  file?: File | null;
+  fileName?: string;
+  filePath?: string;
   externalUrl: string;
 }
 
@@ -32,13 +35,16 @@ export interface BuilderModule {
 
 export interface CourseBuilderDraft {
   id?: string;
+  slug?: string;
   title: string;
   description: string;
   thumbnailUrl: string;
+  thumbnailFile?: File | null;
   category: string;
   difficulty: CourseDifficulty;
   previewVideoUrl: string;
   status: CourseStatus;
+  learningOutcomes?: string[];
   modules: BuilderModule[];
 }
 

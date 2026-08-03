@@ -43,41 +43,45 @@ function Input({
           {label}
         </label>
       </div>
-      <div className="relative group">
-        {icon && (
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <span className="material-symbols-outlined text-outline text-[0px]">
-              {icon}
-            </span>
-          </div>
-        )}
-        <input
-          className={`w-full ${
-            icon ? "pl-11" : "pl-4"
-          } ${shouldShowToggle ? "pr-11" : "pr-4"} py-3 bg-surface-container-low border-none rounded-sm focus:bg-surface-container-lowest transition-all duration-200 outline-none placeholder:text-outline/60 placeholder: text-xs placeholder: tracking-wide text-sm ring-1 ring-transparent focus:ring-1 focus:ring-primary/5`}
-          id={id}
-          type={inputType}
-          value={value}
-          onChange={onChange}
-          aria-invalid={Boolean(error)}
-          aria-describedby={error ? `${id}-error` : undefined}
-          {...props}
-        />
+      <div className="group">
+        <div className="relative">
+          {icon && (
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+              <span className="material-symbols-outlined text-outline text-base">
+                {icon}
+              </span>
+            </div>
+          )}
+          <input
+            className={`w-full ${
+              icon ? "pl-11" : "pl-4"
+            } ${shouldShowToggle ? "pr-11" : "pr-4"} py-3 bg-surface-container-low border-none rounded-sm focus:bg-surface-container-lowest transition-all duration-200 outline-none placeholder:text-outline/60 placeholder:text-xs placeholder:tracking-wide text-sm ring-1 ring-transparent focus:ring-1 focus:ring-primary/5`}
+            id={id}
+            type={inputType}
+            value={value}
+            onChange={onChange}
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? `${id}-error` : undefined}
+            {...props}
+          />
 
-        {shouldShowToggle && (
-          <button
-            type="button"
-            onClick={togglePasswordVisibility}
-            aria-label={isPasswordVisible ? "Hide password" : "Show password"}
-            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-outline hover:text-primary transition-colors duration-200"
-          >
-            {isPasswordVisible ? (
-              <EyeOff size={17} strokeWidth={1} aria-hidden="true" />
-            ) : (
-              <Eye size={17} strokeWidth={1} aria-hidden="true" />
-            )}
-          </button>
-        )}
+          {shouldShowToggle && (
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              aria-label={
+                isPasswordVisible ? "Hide password" : "Show password"
+              }
+              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-outline transition-colors duration-200 hover:text-primary"
+            >
+              {isPasswordVisible ? (
+                <EyeOff size={17} strokeWidth={1} aria-hidden="true" />
+              ) : (
+                <Eye size={17} strokeWidth={1} aria-hidden="true" />
+              )}
+            </button>
+          )}
+        </div>
 
         {forgotPasswordLink && (
           <Link

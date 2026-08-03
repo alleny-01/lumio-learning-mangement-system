@@ -2,7 +2,7 @@ import { getProfile } from "@/shared/api/profiles";
 import { listUserEnrollments } from "@/shared/api/enrollments";
 import { listStudyActivity } from "@/shared/api/progress";
 import type { Tables } from "@/shared/types/database";
-import { dashboardCourses, fallbackQuotes } from "../constants";
+import { fallbackQuotes } from "../constants";
 import type {
   DashboardActivity,
   DashboardCourse,
@@ -12,11 +12,6 @@ import type {
 
 interface EnrollmentWithCourse extends Tables<"enrollments"> {
   courses: Tables<"courses"> | null;
-}
-
-interface QuotableResponse {
-  content?: string;
-  author?: string;
 }
 
 function isoDate(date: Date) {
@@ -87,20 +82,7 @@ async function fetchQuote(): Promise<DashboardQuote> {
     fallbackQuotes[new Date().getDate() % fallbackQuotes.length] ??
     fallbackQuotes[0];
 
-  try {
-    const response = await fetch("https://api.quotable.io/random?tags=education", {
-      headers: { Accept: "application/json" },
-    });
-    if (!response.ok) return fallback;
-    const quote = (await response.json()) as QuotableResponse;
-    if (!quote.content) return fallback;
-    return {
-      content: quote.content,
-      author: quote.author ?? "Quotable",
-    };
-  } catch {
-    return fallback;
-  }
+  return fallback;
 }
 
 export async function loadDashboardData(userId: string): Promise<DashboardData> {
@@ -142,13 +124,13 @@ export async function loadDashboardData(userId: string): Promise<DashboardData> 
   return {
     firstName,
     weeklyStudyHours: Number((weeklyMinutes / 60).toFixed(1)),
-    averageGrade: 4.7,
+    averageGrade: 0,
     enrolledCourseCount: enrollments.length,
     completedCourseCount,
     activeCourseCount: enrollments.length - completedCourseCount,
     totalLessonsCompleted,
     streakDays: calculateStreak(activity),
-    courses: courses.length > 0 ? courses : dashboardCourses,
+    courses,
     activity,
     quote,
   };
@@ -161,14 +143,14 @@ export function createFallbackDashboardData(firstName = "Learner"): DashboardDat
 
   return {
     firstName,
-    weeklyStudyHours: 8.5,
-    averageGrade: 4.7,
-    enrolledCourseCount: dashboardCourses.length,
+    weeklyStudyHours: 0,
+    averageGrade: 0,
+    enrolledCourseCount: 0,
     completedCourseCount: 0,
-    activeCourseCount: dashboardCourses.length,
-    totalLessonsCompleted: 5,
+    activeCourseCount: 0,
+    totalLessonsCompleted: 0,
     streakDays: 0,
-    courses: dashboardCourses,
+    courses: [],
     activity: [],
     quote,
   };

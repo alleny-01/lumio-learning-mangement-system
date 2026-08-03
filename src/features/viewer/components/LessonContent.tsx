@@ -1,6 +1,15 @@
-import { BookOpenCheck, CircleCheckBig } from "lucide-react";
-import { executionSteps } from "../constants";
-import type { ViewerLesson } from "../types";
+import {
+  BookOpenCheck,
+  ArrowRight,
+  Sparkles,
+  CheckCircle2,
+  Download,
+  FileText,
+  FileCode,
+  FolderArchive,
+} from "lucide-react";
+import { showToast } from "@/components/ui/Toast";
+import type { ViewerLesson, ResourceItem } from "../types";
 
 export function LessonContent({
   lesson,
@@ -11,94 +20,199 @@ export function LessonContent({
   nextLesson: ViewerLesson | null;
   onNextLesson: () => void;
 }) {
+  const resources = lesson.resources ?? [];
+
+  const handleDownload = (resource: ResourceItem) => {
+    try {
+      let downloadUrl = resource.fileUrl || resource.filePath || resource.externalUrl;
+      let fileName =
+        resource.fileName ||
+        resource.title ||
+        `${lesson.title.replace(/[^a-zA-Z0-9]+/g, "-")}-Resource.md`;
+
+      if (!downloadUrl) {
+        const content = `# Lumio LMS — ${lesson.title}\n\n## Core Concept\n${lesson.coreConcept}\n\n## Overview\n${lesson.description}\n\n---\n*Downloaded from Lumio LMS*`;
+        const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+        downloadUrl = URL.createObjectURL(blob);
+        if (!fileName.includes(".")) fileName += ".md";
+      }
+
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast({
+        type: "success",
+        title: "Downloading Resource",
+        description: `Saved ${fileName} to your PC.`,
+      });
+    } catch {
+      showToast({
+        type: "error",
+        title: "Download Failed",
+        description: "Unable to trigger file download.",
+      });
+    }
+  };
+
+  const getIconForKind = (kind?: string) => {
+    switch (kind) {
+      case "code":
+        return <FileCode className="size-4 text-primary" />;
+      case "archive":
+        return <FolderArchive className="size-4 text-secondary" />;
+      case "document":
+      default:
+        return <FileText className="size-4 text-primary" />;
+    }
+  };
+
   return (
-    <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_260px]">
-      <div className="space-y-4">
+    <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+      {/* Left Main Area — Title, Description, Core Concept & Downloadable Resources */}
+      <div className="space-y-6">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary-container">
-            Core Concept
-          </p>
-          <h1 className="mt-3 text-[28px] font-medium tracking-[-0.04em] text-on-background sm:text-[34px]">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
+            <Sparkles className="size-3" />
+            Lesson Details
+          </div>
+          <h1 className="mt-3 text-2xl font-medium tracking-tight text-on-surface sm:text-[30px] leading-snug">
             {lesson.title}
           </h1>
-          <p className="mt-3 max-w-2xl text-[13px] font-light leading-7 text-on-surface-variant">
+          <p className="mt-3 max-w-3xl text-[13px] font-light leading-relaxed text-on-surface-variant">
             {lesson.description}
           </p>
         </div>
 
-        <div className="rounded-[24px] border border-border/40 bg-surface-container-lowest p-5 shadow-[0_12px_30px_-26px_rgba(15,23,42,0.35)]">
-          <div className="mb-5 flex items-center gap-2">
-            <BookOpenCheck className="size-4 text-primary" />
-            <h2 className="text-[14px] font-semibold text-on-background">
-              Key Execution Steps
-            </h2>
-          </div>
-
-          <div className="space-y-4">
-            {executionSteps.map((step, index) => (
-              <div key={step.id} className="flex items-start gap-3">
-                <div
-                  className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${index === 0 ? "bg-tertiary-fixed text-on-tertiary-fixed" : index === 1 ? "bg-primary/15 text-primary" : "bg-surface-container-high text-outline"}`}
-                >
-                  {index === 0 ? (
-                    <CircleCheckBig className="size-4" />
-                  ) : (
-                    <span className="text-[11px] font-semibold">
-                      {index + 2}
-                    </span>
-                  )}
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[12px] font-medium text-on-background">
-                    {step.title}
-                  </p>
-                  <p className="max-w-xl text-[12px] font-light leading-6 text-on-surface-variant">
-                    {step.description}
-                  </p>
-                </div>
+        {/* Modernized Core Concept & Resources Card */}
+        <div className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-[0_12px_32px_-22px_rgba(15,23,42,0.18)] space-y-6">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2.5 text-primary">
+              <div className="flex size-7 items-center justify-center rounded-sm bg-primary/10 text-primary">
+                <BookOpenCheck className="size-4" />
               </div>
-            ))}
-          </div>
-        </div>
-
-        <p className="max-w-2xl text-[13px] font-light leading-7 text-on-surface-variant">
-          {lesson.coreConcept}
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        <div className="overflow-hidden rounded-sm border border-border/40 bg-surface-container-lowest shadow-[0_12px_30px_-26px_rgba(15,23,42,0.35)]">
-          <div className="px-4 pt-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-on-surface">
-              Next Lesson
-            </p>
-          </div>
-          <div className="p-4">
-            <div className="relative overflow-hidden rounded-sm bg-[radial-gradient(circle_at_30%_25%,#7f3fb6_0%,#4d1f78_35%,#1d1026_78%)] p-4 shadow-[0_14px_30px_-24px_rgba(53,37,205,0.65)]">
-              <div className="flex h-28 items-center justify-center gap-4 overflow-hidden">
-                <div className="h-16 w-16 rounded-full bg-[radial-gradient(circle_at_30%_30%,#f0d7ff_0%,#8755b2_45%,#351b4e_100%)] blur-[0.2px]" />
-                <div className="h-20 w-20 rounded-full bg-[radial-gradient(circle_at_30%_30%,#f2d0ff_0%,#8b57c3_45%,#311842_100%)]" />
-                <div className="h-16 w-16 rounded-full bg-[radial-gradient(circle_at_30%_30%,#f0d7ff_0%,#8755b2_45%,#351b4e_100%)]" />
-              </div>
+              <h2 className="text-[14px] font-medium text-on-surface">
+                Core Lesson Concept
+              </h2>
             </div>
-            <p className="mt-3 text-[13px] font-semibold text-on-background">
-              {nextLesson?.title ?? "Course complete"}
-            </p>
-            <p className="mt-1 text-[10px] font-light text-on-surface-variant">
-              {nextLesson
-                ? `Coming up next · ${nextLesson.durationMinutes}:00 mins`
-                : "You reached the end of this course."}
-            </p>
-            {nextLesson && (
-              <button
-                type="button"
-                onClick={onNextLesson}
-                className="mt-3 rounded-sm bg-primary-container px-3 py-2 text-[11px] text-white"
-              >
-                Next lesson
-              </button>
+
+            <div className="rounded-sm bg-surface-container-low/60 p-4 border border-outline-variant/20">
+              <p className="text-[13px] font-light leading-relaxed text-on-surface">
+                {lesson.coreConcept ||
+                  "Capture the fundamental principles of this lesson and integrate them directly into your development workflow."}
+              </p>
+            </div>
+          </div>
+
+          {/* Lesson Resources & Download Section */}
+          <div className="border-t border-outline-variant/20 pt-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Download className="size-4 text-primary" />
+                <h3 className="text-[13px] font-medium text-on-surface">
+                  Lesson Resources & Downloads
+                </h3>
+              </div>
+              <span className="text-[11px] font-light text-on-surface-variant">
+                {resources.length} file{resources.length === 1 ? "" : "s"} available
+              </span>
+            </div>
+
+            {resources.length > 0 ? (
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                {resources.map((res) => (
+                  <div
+                    key={res.id}
+                    className="flex items-center justify-between gap-3 rounded-sm border border-outline-variant/20 bg-surface-container-low p-3 transition-all hover:border-primary/30 hover:bg-surface-container-lowest"
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-sm bg-surface p-1.5 shadow-2xs">
+                        {getIconForKind(res.resourceKind)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[12px] font-medium text-on-surface">
+                          {res.title || res.fileName || "Lesson Resource"}
+                        </p>
+                        <p className="text-[10px] font-light text-on-surface-variant">
+                          {res.fileSize || "Downloadable Resource"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDownload(res)}
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-primary px-2.5 py-1.5 text-[11px] font-medium text-on-primary transition-opacity hover:opacity-90 active:scale-95 cursor-pointer"
+                      title={`Download ${res.title}`}
+                    >
+                      <Download className="size-3" />
+                      Save
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[12px] font-light italic text-on-surface-variant">
+                No downloadable resources attached to this lesson.
+              </p>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Right Column — Modernized Next Lesson Card */}
+      <div className="space-y-4">
+        <div className="rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-[0_12px_32px_-22px_rgba(15,23,42,0.18)] space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+              Up Next
+            </span>
+            {nextLesson && (
+              <span className="rounded-full bg-surface-container-low px-2 py-0.5 text-[10px] font-light text-on-surface-variant">
+                {nextLesson.durationMinutes} mins
+              </span>
+            )}
+          </div>
+
+          {nextLesson ? (
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={onNextLesson}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onNextLesson();
+                }
+              }}
+              className="group cursor-pointer rounded-sm border border-outline-variant/20 bg-surface-container-low p-4 transition-all hover:border-primary/40 hover:bg-surface-container-lowest hover:shadow-sm"
+            >
+              <h3 className="text-[14px] font-medium text-on-surface transition-colors group-hover:text-primary leading-snug">
+                {nextLesson.title}
+              </h3>
+              <p className="mt-1 text-[11px] font-light text-on-surface-variant line-clamp-2">
+                {nextLesson.description || "Continue to the next video lesson in this course."}
+              </p>
+
+              <div className="mt-4 flex items-center justify-between pt-2 border-t border-outline-variant/20 text-[12px] font-medium text-primary">
+                <span>Play Next Lesson</span>
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-sm border border-outline-variant/20 bg-surface-container-low p-4 text-center space-y-2">
+              <CheckCircle2 className="size-6 text-tertiary mx-auto" />
+              <h3 className="text-[13px] font-medium text-on-surface">
+                Course Complete!
+              </h3>
+              <p className="text-[11px] font-light text-on-surface-variant">
+                You have finished all available lessons in this course.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </section>

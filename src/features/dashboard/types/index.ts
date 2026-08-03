@@ -19,37 +19,6 @@ export interface DashboardCourse {
   status: "not-started" | "in-progress" | "completed";
 }
 
-export interface ScheduleEvent {
-  id: string;
-  title: string;
-  category: string;
-  time: string;
-  duration: string;
-  dayIndex: number;
-  startColumn: number;
-  columnSpan: number;
-  accent: string;
-  avatarStack?: string[];
-}
-
-export interface NotificationItem {
-  id: string;
-  tag: string;
-  title: string;
-  time: string;
-  date: string;
-  accent: string;
-}
-
-export interface CalendarDay {
-  label: string;
-  date: number;
-  isMuted?: boolean;
-  isSelected?: boolean;
-  isRange?: boolean;
-  activityMinutes?: number;
-}
-
 export interface DashboardQuote {
   content: string;
   author: string;

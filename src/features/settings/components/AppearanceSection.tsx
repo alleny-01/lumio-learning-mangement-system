@@ -16,19 +16,19 @@ const themeOptions: Array<{
   {
     value: "light",
     label: "Light",
-    description: "Use Lumio's default bright interface.",
+    description: "Lumio's default clean, bright interface.",
     icon: Sun,
   },
   {
     value: "dark",
     label: "Dark",
-    description: "Use the darker app theme where supported.",
+    description: "Dark mode option (coming in a future update).",
     icon: Moon,
   },
   {
     value: "system",
     label: "System",
-    description: "Follow your device theme preference.",
+    description: "Follows light theme mode across all devices.",
     icon: Monitor,
   },
 ];
@@ -39,7 +39,7 @@ export function AppearanceSection({
   onThemeChange,
 }: AppearanceSectionProps) {
   return (
-    <section className="rounded-[22px] border border-border/30 bg-surface-container-lowest px-5 py-5 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.25)] sm:px-6 sm:py-6">
+    <section className="min-w-0 rounded-sm border border-border/30 bg-surface-container-lowest px-4 py-5 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.25)] sm:px-6 sm:py-6">
       <div className="flex items-center gap-2 border-b border-border/30 pb-4">
         <Palette className="size-4 text-primary" />
         <h2 className="text-[15px] font-light text-on-background">
@@ -57,7 +57,7 @@ export function AppearanceSection({
               type="button"
               disabled={isSaving}
               onClick={() => onThemeChange(option.value)}
-              className={`rounded-[18px] border p-4 text-left transition ${
+              className={`rounded-sm border p-4 text-left transition ${
                 isSelected
                   ? "border-primary/40 bg-primary/10 text-primary"
                   : "border-border/40 bg-surface hover:border-primary/25 hover:bg-surface-container-low"

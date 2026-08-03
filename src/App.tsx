@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import AuthCallback from "@/components/auth/AuthCallback";
 import SigninPage from "./features/authentication/pages/Signin";
 import SignupPage from "./features/authentication/pages/Signup";
@@ -14,7 +14,7 @@ import DashboardPage from "./features/dashboard/pages/DashboardPage";
 import MyLearningPage from "./features/dashboard/pages/MyLearningPage";
 import ViewerPage from "./features/viewer/pages/ViewerPage";
 import SettingsPage from "./features/settings/pages/SettingsPage";
-import LandingPage from "./landing/pages/LandingPage";
+import OnboardingPage from "./onboarding/pages/OnboardingPage";
 import ResetPassword from "./features/authentication/pages/ResetPassword";
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
 
@@ -23,7 +23,7 @@ function App() {
     <LMSProvider>
       <Routes>
         <Route path="/" element={<AppLayout />}>
-          <Route index element={<LandingPage />} />
+          <Route index element={<OnboardingPage />} />
           <Route
             path="signin"
             element={
@@ -48,14 +48,6 @@ function App() {
               </PublicOnlyRoute>
             }
           />
-          <Route
-            path="forgotpassword"
-            element={
-              <PublicOnlyRoute>
-                <ForgotPassword />
-              </PublicOnlyRoute>
-            }
-          />
           <Route path="reset-password" element={<ResetPassword />} />
           <Route path="email-confirmation" element={<EmailConfirmation />} />
           <Route path="auth/callback" element={<AuthCallback />} />
@@ -74,6 +66,7 @@ function App() {
             <Route path="viewer" element={<ViewerPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
     </LMSProvider>

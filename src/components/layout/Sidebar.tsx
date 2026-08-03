@@ -4,7 +4,6 @@ import {
   ChevronsLeft,
   ChevronsRight,
   LogOut,
-  PanelLeftClose,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -27,10 +26,20 @@ function Sidebar({
   onToggleCollapsed,
   onCloseMobile,
 }: SidebarProps): React.JSX.Element {
-  const { setSession, isLoading, setIsLoading, setAuthError } =
+  const { session, setSession, isLoading, setIsLoading, setAuthError } =
     useContext(LMSContext);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  const userEmail = session?.user?.email ?? "";
+  const userMeta = session?.user?.user_metadata;
+  const userName =
+    [userMeta?.first_name, userMeta?.last_name].filter(Boolean).join(" ") ||
+    userMeta?.full_name ||
+    userMeta?.name ||
+    userEmail.split("@")[0] ||
+    "User";
+  const userInitial = userName.charAt(0).toUpperCase();
 
   const signOut = async () => {
     try {
@@ -76,19 +85,13 @@ function Sidebar({
         <div className="flex h-14 items-center justify-between border-b border-outline-variant/30 px-3">
           <div
             className={cn(
-              "min-w-0 items-center gap-2",
-              isCollapsed ? "hidden md:hidden" : "flex",
+              "min-w-0 items-center gap-2 flex",
+              isCollapsed && "md:hidden",
             )}
           >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-primary text-[11px] font-medium text-on-primary">
-              L
-            </div>
             <div className="min-w-0">
-              <p className="truncate text-[13px] font-medium tracking-wide text-on-surface">
+              <p className="truncate text-[13px] uppercase font-medium tracking-wide text-on-surface">
                 Lumio
-              </p>
-              <p className="truncate text-[10px] font-light text-on-surface-variant">
-                Learning dashboard
               </p>
             </div>
           </div>
@@ -101,9 +104,9 @@ function Sidebar({
               onClick={onToggleCollapsed}
             >
               {isCollapsed ? (
-                <ChevronsRight size={16} strokeWidth={1.4} />
+                <ChevronsRight size={16} strokeWidth={1} />
               ) : (
-                <ChevronsLeft size={16} strokeWidth={1.4} />
+                <ChevronsLeft size={16} strokeWidth={1} />
               )}
             </button>
             <button
@@ -128,7 +131,7 @@ function Sidebar({
                 cn(
                   "group relative flex h-10 items-center gap-3 rounded-sm px-3 text-[12px] font-light tracking-wide text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface",
                   isActive && "bg-surface-container text-on-surface",
-                  isCollapsed && "justify-center px-0",
+                  isCollapsed && "md:justify-center md:px-0",
                 )
               }
             >
@@ -149,9 +152,11 @@ function Sidebar({
                   >
                     {item.icon}
                   </span>
-                  {!isCollapsed && (
-                    <span className="min-w-0 truncate">{item.label}</span>
-                  )}
+                  <span
+                    className={cn("min-w-0 truncate", isCollapsed && "md:hidden")}
+                  >
+                    {item.label}
+                  </span>
                 </>
               )}
             </NavLink>
@@ -162,22 +167,20 @@ function Sidebar({
           <div
             className={cn(
               "mb-2 flex items-center gap-3 rounded-sm px-2 py-2",
-              isCollapsed && "justify-center px-0",
+              isCollapsed && "md:justify-center md:px-0",
             )}
           >
             <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-fixed text-[11px] font-medium text-on-primary-fixed">
-              A
+              {userInitial}
             </div>
-            {!isCollapsed && (
-              <div className="min-w-0">
-                <p className="truncate text-[12px] font-medium text-on-surface">
-                  Allen Enuma
-                </p>
-                <p className="truncate text-[10px] font-light text-on-surface-variant">
-                  allenenuma@gmail.com
-                </p>
-              </div>
-            )}
+            <div className={cn("min-w-0", isCollapsed && "md:hidden")}>
+              <p className="truncate text-[12px] font-medium text-on-surface">
+                {userName}
+              </p>
+              <p className="truncate text-[10px] font-light text-on-surface-variant">
+                {userEmail}
+              </p>
+            </div>
           </div>
 
           <button
@@ -185,11 +188,11 @@ function Sidebar({
             onClick={() => setIsLogoutModalOpen(true)}
             className={cn(
               "flex h-10 w-full items-center gap-3 rounded-sm px-3 text-[12px] font-light text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface",
-              isCollapsed && "justify-center px-0",
+              isCollapsed && "md:justify-center md:px-0",
             )}
           >
             <LogOut size={17} strokeWidth={1.3} />
-            {!isCollapsed && <span>Log out</span>}
+            <span className={cn(isCollapsed && "md:hidden")}>Log out</span>
           </button>
         </div>
       </aside>

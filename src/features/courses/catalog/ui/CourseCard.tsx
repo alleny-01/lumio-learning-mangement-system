@@ -39,18 +39,7 @@ export function CourseCard({ course }: CourseCardProps) {
         )}
       </div>
       <div className="space-y-1">
-        <div className="flex items-center gap-1 text-tertiary-fixed-dim text-xs font-semibold">
-          <span
-            className="material-symbols-outlined text-[14px]"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            star
-          </span>
-          <span>{course.rating}</span>
-          <span className="text-on-surface-variant/60 font-medium ml-1">
-            ({course.reviews})
-          </span>
-        </div>
+
         <h3 className="text-md text-on-surface font-normal upper group-hover:text-primary transition-colors leading-snug">
           {course.title}
         </h3>
@@ -71,9 +60,7 @@ export function CourseCard({ course }: CourseCardProps) {
           </span>
         </div>
         <div className="pt-2 flex items-center justify-end">
-          <span className="material-symbols-outlined text-outline group-hover:text-primary transition-all">
-            <GoArrowUpRight className="text-[17px]" />
-          </span>
+          <GoArrowUpRight className="text-outline group-hover:text-primary transition-all text-[17px]" />
         </div>
       </div>
     </Link>

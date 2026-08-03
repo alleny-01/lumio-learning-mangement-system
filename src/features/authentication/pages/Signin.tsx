@@ -23,16 +23,14 @@ function SigninPage(): React.JSX.Element {
     if (session) navigate("/dashboard");
   }, [session, navigate]);
 
-  // Helper: persist signup email so EmailConfirmation page can read it after refresh
   const persistSignUpEmail = (email: string) => {
     try {
       localStorage.setItem("lumio_sign_up_email", email);
     } catch {
-      // ignore
+      
     }
   };
 
-  // Sign in
   const signIn = async (email: string, password: string) => {
     if (isLoading) return { success: false, error: "busy" };
     if (!email || !password) {
@@ -50,7 +48,7 @@ function SigninPage(): React.JSX.Element {
 
       const user = data.user;
       if (user && !(user?.email_confirmed_at || user?.confirmed_at)) {
-        // redirect to confirmation page
+        
         persistSignUpEmail(signInEmail.toLowerCase());
         navigate("/email-confirmation");
         return { success: false, error: "unverified" };
@@ -151,13 +149,12 @@ function SigninPage(): React.JSX.Element {
           </div>
 
           <div className="flex items-center justify-center">
-            {" "}
             <SocialButton
               icon={<FcGoogle size={20} />}
               onClick={() => handleGoogleSignIn()}
             >
               Google
-            </SocialButton>{" "}
+            </SocialButton>
           </div>
 
           <p className="text-center mt-4 text-[8.3px] sm:text-[10px] tracking-widest text-muted-foreground">

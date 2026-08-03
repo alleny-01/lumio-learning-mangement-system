@@ -1,5 +1,5 @@
-import React from "react";
 import type { Instructor } from "../types/types";
+import { motion } from "framer-motion";
 
 interface InstructorSectionProps {
   instructor: Instructor;
@@ -9,56 +9,34 @@ export const InstructorSection: React.FC<InstructorSectionProps> = ({
   instructor,
 }) => {
   return (
-    <div className="px-6">
-      <div className="bg-background border border-border rounded-sm p-5 flex flex-col gap-4 mt-5">
-        <div className="flex items-center gap-3">
+    <section className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        className=" p-6 sm:p-8 space-y-4"
+      >
+        <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-on-surface-variant">
+          Course Instructor
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
           <img
             src={instructor.image}
             alt={instructor.name}
-            className="w-10 h-10 rounded-full object-cover border border-border shrink-0"
+            className="size-16 rounded-full object-cover border border-outline-variant/40 shrink-0"
           />
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
-              Instructor
-            </span>
-            <span className="text-sm font-medium text-foreground">
+          <div className="space-y-2 min-w-0 flex-1">
+            <h3 className="text-[16px] font-normal text-on-surface">
               {instructor.name}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {instructor.title}
-            </span>
+            </h3>
+            <p className="text-[12px] font-light leading-relaxed text-on-surface-variant max-w-3xl">
+              {instructor.bio}
+            </p>
           </div>
         </div>
-
-        <hr className="border-t border-border" />
-
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          {instructor.bio}
-        </p>
-
-        <div className="flex gap-6">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-medium text-foreground">
-              {(instructor.studentsCount / 1000).toFixed(0)}k+
-            </span>
-            <span className="text-[11px] text-muted-foreground">Students</span>
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-medium text-foreground">
-              {instructor.rating}
-            </span>
-            <span className="text-[11px] text-muted-foreground">Rating</span>
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-medium text-foreground">
-              {instructor.yearsExperience} yrs
-            </span>
-            <span className="text-[11px] text-muted-foreground">
-              Experience
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
+      </motion.div>
+    </section>
   );
 };

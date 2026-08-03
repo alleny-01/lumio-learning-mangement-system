@@ -21,7 +21,10 @@ function ResetPassword(): React.JSX.Element {
   const setIsLoading = auth?.setIsLoading;
   const setAuthError = auth?.setAuthError;
   const passwordsMatch = password === confirmPassword;
-  const isPasswordValid = password.length >= 6 && passwordsMatch;
+  const atleastSixChars = password.length >= 6;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasSpecialChar = /[^a-zA-Z0-9]/.test(password);
+  const isPasswordValid = atleastSixChars && hasUppercase && hasSpecialChar && passwordsMatch;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -82,6 +85,32 @@ function ResetPassword(): React.JSX.Element {
 
           {!passwordsMatch && confirmPassword && (
             <p className="text-xs text-error">Passwords do not match.</p>
+          )}
+
+          {password && (
+            <div className="space-y-1 mt-2">
+              <p
+                className={`text-xs ${
+                  atleastSixChars ? "text-green-500" : "text-muted-foreground"
+                }`}
+              >
+                {atleastSixChars ? "✓" : "○"} At least 6 characters
+              </p>
+              <p
+                className={`text-xs ${
+                  hasUppercase ? "text-green-500" : "text-muted-foreground"
+                }`}
+              >
+                {hasUppercase ? "✓" : "○"} At least one uppercase letter
+              </p>
+              <p
+                className={`text-xs ${
+                  hasSpecialChar ? "text-green-500" : "text-muted-foreground"
+                }`}
+              >
+                {hasSpecialChar ? "✓" : "○"} At least one special character
+              </p>
+            </div>
           )}
 
           {message && <p className="text-xs text-emerald-600">{message}</p>}

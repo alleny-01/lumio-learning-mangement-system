@@ -55,7 +55,7 @@ function fallbackProfileFromSession(session: Session): ProfileSettingsForm {
     avatarUrl: stringMetadataValue(metadata, "avatar_url"),
     email: session.user.email ?? "",
     authProvider: providerFromSession(session.user.app_metadata.provider),
-    themePreference: "system",
+    themePreference: "light",
     language: "en",
   };
 }
@@ -77,10 +77,9 @@ function formFromProfile(
   };
 }
 
-function applyThemePreference(theme: ThemePreference) {
-  const root = document.documentElement;
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  root.classList.toggle("dark", theme === "dark" || (theme === "system" && prefersDark));
+function applyThemePreference(_theme: ThemePreference) {
+  // Lock app to light theme
+  document.documentElement.classList.remove("dark");
 }
 
 export function SettingsShell() {
@@ -126,15 +125,8 @@ export function SettingsShell() {
   }, [session, setAuthError]);
 
   useEffect(() => {
-    if (!profile) return undefined;
+    if (!profile) return;
     applyThemePreference(profile.themePreference);
-
-    if (profile.themePreference !== "system") return undefined;
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const listener = () => applyThemePreference("system");
-    mediaQuery.addEventListener("change", listener);
-    return () => mediaQuery.removeEventListener("change", listener);
   }, [profile]);
 
   const isDirty = useMemo(() => {
@@ -323,25 +315,25 @@ export function SettingsShell() {
   })();
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface antialiased">
-      <main className="mx-auto max-w-340 px-4 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-4">
+    <div className="min-h-screen overflow-x-hidden bg-surface text-on-surface antialiased">
+      <main className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-4">
         <SettingsHeader />
 
-        <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:gap-5">
+        <div className="grid min-w-0 gap-4 md:grid-cols-[240px_minmax(0,1fr)] md:gap-6">
           <SettingsSidebar
             items={settingsNavItems}
             activeId={activeSection}
             onSelect={setActiveSection}
           />
 
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             <SettingsMobileTabs
               items={settingsNavItems}
               activeId={activeSection}
               onSelect={setActiveSection}
             />
             {isLoading ? (
-              <section className="rounded-[22px] border border-border/30 bg-surface-container-lowest px-5 py-5 sm:px-6 sm:py-6">
+              <section className="rounded-sm border border-border/30 bg-surface-container-lowest px-4 py-5 sm:px-6 sm:py-6">
                 <Skeleton className="h-5 w-32" />
                 <Skeleton className="mt-3 h-4 w-2/3" />
                 <div className="mt-8 grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">

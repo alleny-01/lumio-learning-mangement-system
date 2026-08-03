@@ -18,7 +18,6 @@ export default function CourseCatalogPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isFallback, setIsFallback] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -46,7 +45,6 @@ export default function CourseCatalogPage() {
         if (!isMounted) return;
         setCourses(result.courses);
         setTotal(result.total);
-        setIsFallback(result.isFallback);
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -87,12 +85,7 @@ export default function CourseCatalogPage() {
           }}
         />
 
-        {isFallback && (
-          <p className="mb-4 rounded-sm bg-primary-fixed px-3 py-2 text-xs font-light text-on-primary-fixed">
-            Showing demo catalog data until published Supabase courses are
-            available.
-          </p>
-        )}
+
 
         <CourseGrid courses={courses} isLoading={isLoading} />
 

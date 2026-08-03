@@ -114,20 +114,13 @@ cd lumio
 npm install
 ```
 
-### 3. Environment Setup
-Create a `.env` file in the root directory:
-```env
-VITE_SUPABASE_URL=https://your-supabase-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
-
-### 4. Run Locally
+### 3. Run Locally
 ```bash
 npm run dev
 ```
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-### 5. Build for Production
+### 4. Build for Production
 ```bash
 npm run build
 ```
@@ -155,16 +148,6 @@ Create the following public storage buckets in Supabase Storage:
 3. `avatars` (Public)
 
 ---
-
-## 🌐 Deploying to Vercel
-
-1. Push your repository to GitHub.
-2. Import the repository in your **Vercel Dashboard**.
-3. Select **Vite** as the framework preset.
-4. Add your Environment Variables:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-5. Click **Deploy**.
 
 Vercel will build the project using `npm run build` (`tsc -b && vite build`) and output the static SPA bundle ready for production edge distribution.
 
